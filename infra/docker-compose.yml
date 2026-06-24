@@ -1,0 +1,139 @@
+version: "3.8"
+
+# ============================================================
+# ATP Oracle – Hadoop HDFS cluster
+#
+# ⚠️  Apple Silicon (M1/M2/M3):
+#     apache/hadoop non ha immagini ARM64.
+#     Usa invece Hadoop nativo via Homebrew:
+#       chmod +x infra/setup_hadoop_macos.sh
+#       ./infra/setup_hadoop_macos.sh      ← solo la prima volta
+#       ./infra/start_hdfs.sh              ← per avviare
+#
+# Questo docker-compose è per ambienti Linux / x86_64.
+# ============================================================
+
+x-hadoop-base: &hadoop-base
+  image: apache/hadoop:3
+  platform: linux/amd64        # required on Apple Silicon (M1/M2/M3)
+  user: root
+
+x-hadoop-env: &hadoop-env
+  HADOOP_HOME: /opt/hadoop
+  CORE_CONF_fs_defaultFS: "hdfs://namenode:9000"
+  CORE_CONF_hadoop_http_staticuser_user: "root"
+  HDFS_CONF_dfs_replication: "1"
+  HDFS_CONF_dfs_permissions_enabled: "false"
+  HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check: "false"
+  CLUSTER_NAME: "atp-oracle"
+
+services:
+  # ------------------------------------------------------------------
+  # NameNode
+  # ------------------------------------------------------------------
+  namenode:
+    <<: *hadoop-base
+    container_name: atp-namenode
+    hostname: namenode
+    environment:
+      <<: *hadoop-env
+      HDFS_CONF_dfs_namenode_name_dir: "file:///hadoop/dfs/name"
+    ports:
+      - "9870:9870"   # Web UI
+      - "9000:9000"   # RPC
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+    command: ["hdfs", "namenode"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9870"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  # ------------------------------------------------------------------
+  # DataNode
+  # ------------------------------------------------------------------
+  datanode:
+    <<: *hadoop-base
+    container_name: atp-datanode
+    hostname: datanode
+    environment:
+      <<: *hadoop-env
+      HDFS_CONF_dfs_datanode_data_dir: "file:///hadoop/dfs/data"
+    depends_on:
+      namenode:
+        condition: service_healthy
+    ports:
+      - "9864:9864"
+    volumes:
+      - datanode_data:/hadoop/dfs/data
+    command: ["hdfs", "datanode"]
+
+  # ------------------------------------------------------------------
+  # HDFS initialiser – creates directory layout on first boot
+  # ------------------------------------------------------------------
+  hdfs-init:
+    <<: *hadoop-base
+    container_name: atp-hdfs-init
+    environment:
+      <<: *hadoop-env
+    depends_on:
+      namenode:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: >
+      /bin/bash -c "
+        echo 'Waiting for NameNode…' &&
+        sleep 5 &&
+        hdfs dfs -mkdir -p /data/raw/rankings &&
+        hdfs dfs -mkdir -p /data/raw/players &&
+        hdfs dfs -mkdir -p /data/raw/matches &&
+        hdfs dfs -mkdir -p /data/raw/match_stats &&
+        hdfs dfs -mkdir -p /data/bronze &&
+        hdfs dfs -mkdir -p /data/silver &&
+        hdfs dfs -mkdir -p /data/gold/features &&
+        hdfs dfs -mkdir -p /data/models &&
+        hdfs dfs -mkdir -p /data/evaluation &&
+        hdfs dfs -chmod -R 777 /data &&
+        echo 'HDFS layout initialised.'
+      "
+
+  # ------------------------------------------------------------------
+  # YARN (optional – enable with: docker compose --profile yarn up -d)
+  # ------------------------------------------------------------------
+  resourcemanager:
+    <<: *hadoop-base
+    container_name: atp-resourcemanager
+    hostname: resourcemanager
+    environment:
+      <<: *hadoop-env
+      YARN_CONF_yarn_resourcemanager_hostname: "resourcemanager"
+      YARN_CONF_yarn_nodemanager_aux___services: "mapreduce_shuffle"
+    depends_on:
+      namenode:
+        condition: service_healthy
+    ports:
+      - "8088:8088"
+    command: ["yarn", "resourcemanager"]
+    profiles: ["yarn"]
+
+  nodemanager:
+    <<: *hadoop-base
+    container_name: atp-nodemanager
+    hostname: nodemanager
+    environment:
+      <<: *hadoop-env
+      YARN_CONF_yarn_resourcemanager_hostname: "resourcemanager"
+      YARN_CONF_yarn_nodemanager_aux___services: "mapreduce_shuffle"
+    depends_on:
+      - resourcemanager
+    command: ["yarn", "nodemanager"]
+    profiles: ["yarn"]
+
+volumes:
+  namenode_data:
+  datanode_data:
+
+networks:
+  default:
+    name: atp-oracle-net

@@ -1,0 +1,23 @@
+# Secrets / env
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Data & model artifacts (kept on S3, not in git)
+.cache/
+
+# OS / editor
+.DS_Store
+.vscode/
+
+# Office temp lock files
+~$*

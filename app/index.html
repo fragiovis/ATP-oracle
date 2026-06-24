@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATP Oracle — Pre-Match Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────
+   CSS CUSTOM PROPERTIES & RESET
+───────────────────────────────────────────────── */
+:root {
+  --bg:        #08091a;
+  --bg2:       #0d1128;
+  --glass:     rgba(255,255,255,0.04);
+  --glass-b:   rgba(255,255,255,0.08);
+  --border:    rgba(255,255,255,0.09);
+  --text:      #e8ecf4;
+  --muted:     rgba(232,236,244,0.45);
+  --accent:    #00ffa3;
+  --accent2:   #0085ff;
+  --danger:    #ff5e7e;
+
+  --surf-clay:  #c8773a;
+  --surf-hard:  #1b6cbf;
+  --surf-grass: #2e8b57;
+  --surf-indoor:#7b4ca8;
+
+  --surf-color: var(--surf-hard);
+  --surf-glow:  rgba(27,108,191,0.35);
+
+  --radius:   16px;
+  --radius-sm: 8px;
+  --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+[data-surface="clay"]   { --surf-color:var(--surf-clay);  --surf-glow:rgba(200,119,58,0.35);  }
+[data-surface="grass"]  { --surf-color:var(--surf-grass); --surf-glow:rgba(46,139,87,0.35);   }
+[data-surface="indoor"] { --surf-color:var(--surf-indoor);--surf-glow:rgba(123,76,168,0.35);  }
+[data-surface="hard"]   { --surf-color:var(--surf-hard);  --surf-glow:rgba(27,108,191,0.35);  }
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { height:100%; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  transition: --surf-color var(--transition);
+}
+
+/* ─────────────────────────────────────────────────
+   ANIMATED COURT BACKGROUND
+───────────────────────────────────────────────── */
+#court-bg {
+  position: fixed; inset: 0; z-index: 0;
+  overflow: hidden; pointer-events: none;
+}
+#court-bg svg {
+  width: 100%; height: 100%;
+  opacity: 0.055;
+  transition: opacity 1s;
+}
+.court-line {
+  stroke: var(--surf-color);
+  stroke-width: 1.5;
+  fill: none;
+  transition: stroke 1s ease;
+}
+.court-fill {
+  fill: var(--surf-color);
+  opacity: 0.15;
+  transition: fill 1s ease;
+}
+
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+  animation: orb-drift 18s ease-in-out infinite alternate;
+}
+.orb1 { width:500px; height:500px; top:-150px; right:-100px;
+        background: var(--surf-glow); animation-delay:0s; }
+.orb2 { width:350px; height:350px; bottom:-100px; left:-50px;
+        background: rgba(0,255,163,0.07); animation-delay:-7s; }
+@keyframes orb-drift {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(40px, 30px) scale(1.1); }
+}
+
+/* ─────────────────────────────────────────────────
+   LAYOUT SHELL
+───────────────────────────────────────────────── */
+#app {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  grid-template-rows: 64px 1fr;
+  height: 100vh;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* ─────────────────────────────────────────────────
+   TOP BAR
+───────────────────────────────────────────────── */
+#topbar {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 24px;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(8,9,26,0.8);
+  backdrop-filter: blur(20px);
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.7rem;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-shadow: 0 0 28px rgba(0,255,163,0.55);
+  user-select: none;
+}
+.logo span { color: var(--text); }
+
+/* Tournament selector in topbar */
+#tourn-selector {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1;
+  max-width: 520px;
+}
+.tourn-select {
+  flex: 1;
+  background: var(--glass-b);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font: 0.8rem/1.4 'Inter', sans-serif;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(232,236,244,0.4)' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
+.tourn-select:focus {
+  border-color: var(--surf-color);
+  box-shadow: 0 0 0 2px var(--surf-glow);
+}
+.tourn-select option {
+  background: #0d1128;
+  color: var(--text);
+}
+.tourn-select optgroup {
+  background: #0d1128;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.tourn-clear-btn {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--glass);
+  color: var(--muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.tourn-clear-btn:hover { border-color: var(--danger); color: var(--danger); }
+.tourn-badge {
+  display: none;
+  align-items: center; gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1.5px solid var(--surf-color);
+  background: rgba(var(--surf-color-rgb, 27,108,191), 0.12);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--surf-color);
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.tourn-badge.visible { display: flex; }
+.tourn-badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--surf-color);
+  transition: background var(--transition);
+}
+
+.surface-pills {
+  display: flex; gap: 8px;
+}
+.surface-pill {
+  padding: 5px 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--glass);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.surface-pill:hover { border-color: var(--surf-color); color: var(--text); }
+.surface-pill.active {
+  background: var(--surf-color);
+  border-color: var(--surf-color);
+  color: #fff;
+  box-shadow: 0 0 18px var(--surf-glow);
+}
+.surface-pill[data-val="clay"].active   { background:var(--surf-clay);  border-color:var(--surf-clay);  }
+.surface-pill[data-val="grass"].active  { background:var(--surf-grass); border-color:var(--surf-grass); }
+.surface-pill[data-val="indoor"].active { background:var(--surf-indoor);border-color:var(--surf-indoor);}
+.surface-pill[data-val="hard"].active   { background:var(--surf-hard);  border-color:var(--surf-hard);  }
+
+#bestof-toggle {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  background: var(--glass);
+  color: var(--text);
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.03em;
+  cursor: pointer; user-select: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+#bestof-toggle:hover { border-color: var(--accent); color: var(--accent); }
+#bestof-toggle.bo5   { border-color: #f5c518; color: #f5c518;
+                        background: rgba(245,197,24,0.08); }
+
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  animation: pulse 2.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.5; transform:scale(0.7); }
+}
+
+/* ─────────────────────────────────────────────────
+   CHAT PANEL (LEFT)
+───────────────────────────────────────────────── */
+#chat-panel {
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
+  height: calc(100vh - 64px);
+  background: rgba(8,9,26,0.6);
+  backdrop-filter: blur(12px);
+}
+
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+#messages::-webkit-scrollbar { width: 4px; }
+#messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.msg {
+  max-width: 88%;
+  animation: msg-in 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes msg-in {
+  from { opacity:0; transform:translateY(12px) scale(0.95); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+.msg.user { align-self: flex-end; }
+.msg.bot  { align-self: flex-start; }
+
+.bubble {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.msg.user .bubble {
+  background: var(--surf-color);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 20px var(--surf-glow);
+  transition: background var(--transition), box-shadow var(--transition);
+}
+.msg.bot .bubble {
+  background: var(--glass-b);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+  color: var(--text);
+  backdrop-filter: blur(10px);
+}
+.msg-meta {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 4px;
+  padding: 0 4px;
+}
+.msg.user .msg-meta { text-align: right; }
+
+#typing {
+  align-self: flex-start;
+  display: none;
+  gap: 5px;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--glass-b);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  border-bottom-left-radius: 4px;
+  animation: msg-in 0.3s both;
+}
+#typing.visible { display: flex; }
+.typing-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--surf-color);
+  animation: bounce 1.2s ease-in-out infinite;
+  transition: background var(--transition);
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+  0%,80%,100% { transform:translateY(0); opacity:0.5; }
+  40% { transform:translateY(-6px); opacity:1; }
+}
+
+#examples {
+  padding: 12px 20px 0;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.example-chip {
+  padding: 6px 13px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.73rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.example-chip:hover {
+  border-color: var(--surf-color);
+  color: var(--text);
+  background: var(--glass-b);
+}
+
+#input-area {
+  padding: 16px 20px 20px;
+  display: flex; gap: 10px; align-items: flex-end;
+}
+#query-input {
+  flex: 1;
+  background: var(--glass-b);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font: 0.88rem/1.5 'Inter', sans-serif;
+  color: var(--text);
+  resize: none;
+  min-height: 46px;
+  max-height: 120px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+#query-input::placeholder { color: var(--muted); }
+#query-input:focus {
+  border-color: var(--surf-color);
+  box-shadow: 0 0 0 3px var(--surf-glow);
+}
+#send-btn {
+  width: 46px; height: 46px; flex-shrink: 0;
+  border-radius: 12px;
+  border: none;
+  background: var(--surf-color);
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px var(--surf-glow);
+}
+#send-btn:hover { transform: scale(1.06); filter: brightness(1.15); }
+#send-btn:active { transform: scale(0.96); }
+#send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ─────────────────────────────────────────────────
+   PREDICTION DASHBOARD (RIGHT)
+───────────────────────────────────────────────── */
+#dashboard {
+  position: relative;
+  overflow-y: auto;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+#dashboard::-webkit-scrollbar { width: 4px; }
+#dashboard::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+#empty-state {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 18px;
+  color: var(--muted);
+  text-align: center;
+  user-select: none;
+  transition: opacity 0.5s;
+}
+#empty-state.hidden { opacity: 0; pointer-events: none; }
+.empty-icon {
+  font-size: 4rem;
+  filter: drop-shadow(0 0 30px var(--surf-glow));
+  animation: spin-slow 20s linear infinite;
+}
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.empty-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 2px;
+  color: rgba(232,236,244,0.2);
+}
+.empty-hint {
+  font-size: 0.82rem;
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+#match-header {
+  display: none;
+  background: var(--glass-b);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 28px 24px;
+  min-height: 120px;
+  gap: 16px;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+  animation: card-in 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+#match-header.visible { display: flex; flex-wrap: wrap; justify-content: center; }
+#match-header::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--surf-color), var(--accent));
+  transition: background var(--transition);
+}
+.match-player {
+  flex: 1; text-align: center; min-width: 140px;
+}
+.player-name {
+  font-weight: 700; font-size: 1.2rem;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+.player-flag { font-size: 1.6rem; margin-bottom: 4px; }
+.vs-badge {
+  padding: 6px 14px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 3px;
+  color: var(--muted);
+}
+.match-meta {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 0 24px 16px;
+  margin-top: -12px;
+}
+.meta-tag {
+  padding: 3px 12px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+}
+.meta-tag.highlight {
+  background: rgba(0,255,163,0.08);
+  border-color: rgba(0,255,163,0.3);
+  color: var(--accent);
+}
+
+#pred-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@keyframes card-in {
+  from { opacity:0; transform:translateY(20px) scale(0.96); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+
+.pred-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  animation: card-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+  position: relative;
+  overflow: hidden;
+}
+.pred-card:hover {
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.pred-card.wide { grid-column: 1 / -1; }
+
+.player-not-found-banner {
+  grid-column: 1 / -1;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  border-left: 4px solid #fbbf24;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  color: #fde68a;
+  line-height: 1.5;
+}
+
+.card-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--muted);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.card-label .icon { font-size: 0.85rem; }
+
+/* Win probability – dual bar */
+.win-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.player-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.player-label {
+  width: 120px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+.bar-track {
+  flex: 1; height: 10px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1.2s cubic-bezier(0.34,1.2,0.64,1);
+  width: 0%;
+}
+.bar-fill.a { background: linear-gradient(90deg, var(--surf-color), var(--accent)); }
+.bar-fill.b { background: linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2)); }
+.pct-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 500;
+  min-width: 44px;
+  text-align: right;
+}
+.winner-crown {
+  font-size: 0.8rem;
+  animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation-delay: 1s;
+}
+@keyframes pop {
+  from { opacity:0; transform:scale(0) rotate(-20deg); }
+  to   { opacity:1; transform:scale(1) rotate(0); }
+}
+
+/* Big number stat */
+.big-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.5rem;
+  line-height: 1;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--text), var(--surf-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: num-pop 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation-delay: 0.2s;
+  transition: background var(--transition);
+}
+@keyframes num-pop {
+  from { opacity:0; transform:scale(0.5); }
+  to   { opacity:1; transform:scale(1); }
+}
+.big-num-unit {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Probability ring */
+.ring-wrap {
+  display: flex; align-items: center; gap: 18px;
+}
+.ring-svg {
+  flex-shrink: 0;
+  animation: card-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both 0.1s;
+}
+.ring-track { fill:none; stroke:rgba(255,255,255,0.07); }
+.ring-arc {
+  fill: none;
+  stroke: var(--surf-color);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.34,1.2,0.64,1),
+              stroke var(--transition);
+}
+.ring-text {
+  font-family: 'JetBrains Mono', monospace;
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  dominant-baseline: middle;
+  text-anchor: middle;
+}
+.ring-info { flex: 1; }
+.ring-pct {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  letter-spacing: 1px;
+  color: var(--surf-color);
+  transition: color var(--transition);
+}
+.ring-desc {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+/* H2H mini bar */
+.h2h-bar {
+  display: flex; height: 8px; border-radius: 999px; overflow: hidden; gap: 2px;
+  margin-top: 6px;
+}
+.h2h-a { background: var(--surf-color); transition: flex var(--transition), background var(--transition); }
+.h2h-b { background: rgba(255,255,255,0.2); transition: flex var(--transition); }
+
+/* Intent badge */
+#intent-badge {
+  display: none;
+  align-self: flex-start;
+  padding: 4px 14px;
+  background: rgba(0,255,163,0.08);
+  border: 1px solid rgba(0,255,163,0.25);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--accent);
+  animation: card-in 0.3s both;
+}
+#intent-badge.visible { display: block; }
+
+/* Clarification card */
+#clarification-card {
+  display: none;
+  background: rgba(255,94,126,0.08);
+  border: 1px solid rgba(255,94,126,0.3);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  gap: 12px;
+  align-items: flex-start;
+  animation: card-in 0.4s both;
+}
+#clarification-card.visible { display: flex; }
+.clarif-icon { font-size: 1.4rem; flex-shrink: 0; }
+.clarif-text { font-size: 0.88rem; line-height: 1.6; color: #ffa0b5; }
+.clarif-label {
+  font-size: 0.7rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--danger); margin-bottom: 4px;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.09) 50%,
+    rgba(255,255,255,0.04) 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── H2H History table ── */
+.h2h-table { width:100%; border-collapse:collapse; margin-top:10px; }
+.h2h-table th {
+  font-size:0.68rem; font-weight:600; text-transform:uppercase; letter-spacing:0.8px;
+  color:var(--muted); text-align:left; padding:6px 10px; border-bottom:1px solid var(--border);
+}
+.h2h-table td {
+  font-size:0.78rem; padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04);
+  color:var(--text);
+}
+.h2h-table tr:hover td { background:rgba(255,255,255,0.03); }
+.h2h-winner { color:var(--accent); font-weight:600; }
+.h2h-surface-tag {
+  display:inline-block; padding:1px 8px; border-radius:999px; font-size:0.66rem;
+  font-weight:600; text-transform:uppercase; letter-spacing:0.5px;
+  background:var(--glass); border:1px solid var(--border); color:var(--muted);
+}
+
+/* ── Stats section ── */
+.stats-section {
+  animation: card-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.stats-section-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.stats-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--muted);
+}
+.stats-section-accent {
+  height: 2px; flex: 1;
+  background: linear-gradient(90deg, var(--surf-color), transparent);
+  border-radius: 999px;
+  transition: background var(--transition);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.stats-grid.cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.stat-item {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  transition: border-color 0.2s;
+}
+.stat-item:hover { border-color: rgba(255,255,255,0.15); }
+.stat-item-label {
+  font-size: 0.63rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.stat-item-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.0rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.stat-item-value.accent { color: var(--surf-color); transition: color var(--transition); }
+.stat-item-sub {
+  font-size: 0.63rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* Players stats side by side */
+.players-stats-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.player-stats-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  animation: card-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.player-stats-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 14px;
+  color: var(--surf-color);
+  transition: color var(--transition);
+  letter-spacing: 0.3px;
+}
+.player-stats-name.b-player { color: rgba(232,236,244,0.7); }
+.stat-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.78rem;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row-label { color: var(--muted); }
+.stat-row-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ── Explain button ── */
+.explain-btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:14px 20px; margin-top:8px;
+  background:linear-gradient(135deg, rgba(0,133,255,0.15), rgba(0,255,163,0.10));
+  border:1.5px solid rgba(0,133,255,0.35);
+  border-radius:var(--radius);
+  color:var(--accent2);
+  font-size:0.85rem; font-weight:600; letter-spacing:0.3px;
+  cursor:pointer;
+  transition:all 0.25s;
+}
+.explain-btn:hover {
+  background:linear-gradient(135deg, rgba(0,133,255,0.25), rgba(0,255,163,0.18));
+  border-color:rgba(0,133,255,0.55);
+  color:#fff;
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(0,133,255,0.2);
+}
+.explain-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none; }
+.explain-btn .spinner {
+  width:14px; height:14px; border:2px solid rgba(255,255,255,0.2);
+  border-top-color:var(--accent2); border-radius:50%;
+  animation:spin-fast 0.6s linear infinite; display:none;
+}
+.explain-btn.loading .spinner { display:block; }
+.explain-btn.loading .btn-text { display:none; }
+@keyframes spin-fast { to { transform:rotate(360deg); } }
+
+.explain-result {
+  margin-top:12px; padding:16px 18px;
+  background:rgba(0,133,255,0.06);
+  border:1px solid rgba(0,133,255,0.2);
+  border-radius:var(--radius-sm);
+  font-size:0.84rem; line-height:1.7; color:var(--text);
+  animation:card-in 0.35s both;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  #app { grid-template-columns: 1fr; grid-template-rows: 64px 1fr 1fr; }
+  #chat-panel { border-right: none; border-bottom: 1px solid var(--border); height: 45vh; }
+  #dashboard { height: 45vh; padding: 16px; }
+  #pred-grid { grid-template-columns: 1fr; }
+  #tourn-selector { max-width: 280px; }
+  .players-stats-wrap { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+}
+</style>
+</head>
+<body data-surface="hard">
+
+<!-- ── BACKGROUND ── -->
+<div id="court-bg">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+    <rect x="100" y="80" width="1000" height="640" class="court-line" rx="2"/>
+    <line x1="600" y1="80" x2="600" y2="720" class="court-line"/>
+    <line x1="100" y1="400" x2="1100" y2="400" class="court-line"/>
+    <line x1="250" y1="200" x2="250" y2="600" class="court-line"/>
+    <line x1="950" y1="200" x2="950" y2="600" class="court-line"/>
+    <line x1="250" y1="200" x2="950" y2="200" class="court-line"/>
+    <line x1="250" y1="600" x2="950" y2="600" class="court-line"/>
+    <line x1="570" y1="80" x2="630" y2="80" class="court-line" stroke-width="3"/>
+    <line x1="570" y1="720" x2="630" y2="720" class="court-line" stroke-width="3"/>
+    <line x1="100" y1="400" x2="1100" y2="400" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-dasharray="8,6"/>
+    <line x1="165" y1="80" x2="165" y2="720" class="court-line" stroke-dasharray="5,5"/>
+    <line x1="1035" y1="80" x2="1035" y2="720" class="court-line" stroke-dasharray="5,5"/>
+  </svg>
+</div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- ── APP SHELL ── -->
+<div id="app">
+
+  <!-- TOP BAR -->
+  <header id="topbar">
+    <span class="logo">ATP <span>Oracle</span></span>
+    <div class="status-dot" title="API online"></div>
+
+    <!-- Tournament selector -->
+    <div id="tourn-selector">
+      <select id="tourn-category" class="tourn-select" onchange="onCategoryChange()" style="max-width:130px">
+        <option value="">Categoria…</option>
+      </select>
+      <select id="tourn-name" class="tourn-select" onchange="onTournamentSelect()" disabled>
+        <option value="">Torneo…</option>
+      </select>
+      <button class="tourn-clear-btn" onclick="clearTournament()" title="Rimuovi torneo">✕</button>
+    </div>
+
+    <!-- Active tournament badge -->
+    <div class="tourn-badge" id="tourn-badge">
+      <div class="tourn-badge-dot"></div>
+      <span id="tourn-badge-text"></span>
+    </div>
+
+    <div class="surface-pills" id="surface-pills">
+      <button class="surface-pill" data-val="clay" onclick="setSurface('clay')">Clay</button>
+      <button class="surface-pill active" data-val="hard" onclick="setSurface('hard')">Hard</button>
+      <button class="surface-pill" data-val="grass" onclick="setSurface('grass')">Grass</button>
+      <button class="surface-pill" data-val="indoor" onclick="setSurface('indoor')">Indoor</button>
+    </div>
+
+    <button id="bestof-toggle" onclick="toggleBestOf()" title="Match format">
+      <span id="bestof-label">Best of 3</span>
+    </button>
+  </header>
+
+  <!-- ── CHAT PANEL ── -->
+  <section id="chat-panel">
+    <div id="messages">
+      <div class="msg bot">
+        <div class="bubble">
+          👋 Welcome to <strong>ATP Oracle</strong>. Ask me anything about an upcoming ATP match — I'll predict win probabilities, aces, total games, tie-breaks, and more.<br><br>
+          Try: <em>"Who is favored between Sinner and Alcaraz on clay?"</em>
+        </div>
+        <div class="msg-meta">Oracle · just now</div>
+      </div>
+      <div id="typing" role="status" aria-label="Oracle is thinking">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+
+    <div id="examples">
+      <button class="example-chip" onclick="useExample(this)">Sinner vs Alcaraz on clay?</button>
+      <button class="example-chip" onclick="useExample(this)">How many aces will Zverev hit?</button>
+      <button class="example-chip" onclick="useExample(this)">Total games Djokovic vs Medvedev?</button>
+      <button class="example-chip" onclick="useExample(this)">Tiebreak probability on grass?</button>
+      <button class="example-chip" onclick="useExample(this)">First set winner Rublev vs Fritz?</button>
+    </div>
+
+    <div id="input-area">
+      <textarea
+        id="query-input"
+        placeholder="Ask a pre-match prediction question…"
+        rows="1"
+        aria-label="Your question"
+      ></textarea>
+      <button id="send-btn" onclick="sendQuery()" aria-label="Send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ── PREDICTION DASHBOARD ── -->
+  <section id="dashboard">
+    <div id="empty-state">
+      <div class="empty-icon">🎾</div>
+      <div class="empty-title">Awaiting your query</div>
+      <div class="empty-hint">Ask a prediction question in the chat panel. Results will appear here in real time.</div>
+    </div>
+
+    <div id="intent-badge"></div>
+
+    <div id="match-header">
+      <div class="match-player" id="player-a-col">
+        <div class="player-flag" id="flag-a">🎾</div>
+        <div class="player-name" id="name-a">Player A</div>
+      </div>
+      <div class="vs-badge">VS</div>
+      <div class="match-player" id="player-b-col">
+        <div class="player-flag" id="flag-b">🎾</div>
+        <div class="player-name" id="name-b">Player B</div>
+      </div>
+    </div>
+    <div class="match-meta" id="match-meta" style="display:none"></div>
+
+    <div id="clarification-card">
+      <div class="clarif-icon">🤔</div>
+      <div>
+        <div class="clarif-label">Clarification needed</div>
+        <div class="clarif-text" id="clarif-text"></div>
+      </div>
+    </div>
+
+    <!-- Prediction cards grid -->
+    <div id="pred-grid"></div>
+
+    <!-- Stats sections (tournament + players) -->
+    <div id="stats-sections" style="display:none; flex-direction:column; gap:20px;"></div>
+
+  </section>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const API = '';
+let currentSurface = 'hard';
+let currentBestOf = 3;
+let isLoading = false;
+let allTournaments = [];      // loaded from /api/tournaments
+let selectedTournament = null; // { name, surface, category, t_* }
+
+/* ═══════════════════════════════════════════════
+   TOURNAMENTS – LOAD + DROPDOWN
+═══════════════════════════════════════════════ */
+async function loadTournaments() {
+  try {
+    const res = await fetch(`${API}/api/tournaments`);
+    if (!res.ok) return;
+    const data = await res.json();
+    allTournaments = data.tournaments || [];
+    buildCategoryDropdown();
+  } catch(e) {
+    console.warn('Could not load tournaments:', e);
+  }
+}
+
+const CAT_ORDER = ['Grand Slam', 'ATP 1000', 'ATP 500', 'ATP 250', 'Other'];
+const SURFACE_LABELS = { clay:'Clay', hard:'Hard', grass:'Grass', indoor:'Indoor' };
+
+function buildCategoryDropdown() {
+  const sel = document.getElementById('tourn-category');
+  // Collect unique categories
+  const cats = [...new Set(allTournaments.map(t => t.category || 'Other'))];
+  cats.sort((a,b) => {
+    const ia = CAT_ORDER.indexOf(a), ib = CAT_ORDER.indexOf(b);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+  sel.innerHTML = '<option value="">Categoria…</option>';
+  cats.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+function onCategoryChange() {
+  const cat = document.getElementById('tourn-category').value;
+  const nameSel = document.getElementById('tourn-name');
+  nameSel.innerHTML = '<option value="">Torneo…</option>';
+
+  if (!cat) { nameSel.disabled = true; return; }
+
+  const filtered = allTournaments.filter(t => (t.category || 'Other') === cat);
+  filtered.sort((a,b) => a.name.localeCompare(b.name));
+  filtered.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.name;
+    const surfLabel = SURFACE_LABELS[t.surface] || t.surface;
+    opt.textContent = `${t.name} (${surfLabel})`;
+    nameSel.appendChild(opt);
+  });
+  nameSel.disabled = false;
+}
+
+function onTournamentSelect() {
+  const name = document.getElementById('tourn-name').value;
+  if (!name) { selectedTournament = null; hideTournBadge(); return; }
+
+  selectedTournament = allTournaments.find(t => t.name === name) || null;
+  if (selectedTournament) {
+    setSurface(selectedTournament.surface || 'hard');
+    showTournBadge(selectedTournament);
+  }
+}
+
+function clearTournament() {
+  selectedTournament = null;
+  document.getElementById('tourn-category').value = '';
+  document.getElementById('tourn-name').innerHTML = '<option value="">Torneo…</option>';
+  document.getElementById('tourn-name').disabled = true;
+  hideTournBadge();
+}
+
+function showTournBadge(t) {
+  const badge = document.getElementById('tourn-badge');
+  document.getElementById('tourn-badge-text').textContent = t.name;
+  badge.classList.add('visible');
+}
+
+function hideTournBadge() {
+  document.getElementById('tourn-badge').classList.remove('visible');
+}
+
+/* ═══════════════════════════════════════════════
+   SURFACE THEMING
+═══════════════════════════════════════════════ */
+function setSurface(s) {
+  currentSurface = s;
+  document.body.dataset.surface = s;
+  document.querySelectorAll('.surface-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.val === s);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   BEST-OF TOGGLE
+═══════════════════════════════════════════════ */
+function toggleBestOf() {
+  currentBestOf = currentBestOf === 3 ? 5 : 3;
+  const btn = document.getElementById('bestof-toggle');
+  document.getElementById('bestof-label').textContent = `Best of ${currentBestOf}`;
+  btn.classList.toggle('bo5', currentBestOf === 5);
+}
+
+/* ═══════════════════════════════════════════════
+   AUTO-DETECT SURFACE FROM QUERY
+═══════════════════════════════════════════════ */
+function detectSurface(text) {
+  const t = text.toLowerCase();
+  if (t.includes('clay') || t.includes('terra')) return 'clay';
+  if (t.includes('grass') || t.includes('erba') || t.includes('wimbledon')) return 'grass';
+  if (t.includes('indoor') || t.includes('carpet')) return 'indoor';
+  if (t.includes('hard')) return 'hard';
+  return null;
+}
+
+/* ═══════════════════════════════════════════════
+   CHAT UTILITIES
+═══════════════════════════════════════════════ */
+function now() {
+  return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+function addMessage(role, text) {
+  const feed = document.getElementById('messages');
+  const typing = document.getElementById('typing');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `
+    <div class="bubble">${text}</div>
+    <div class="msg-meta">
+      ${role === 'user' ? 'You' : 'Oracle'} · ${now()}
+    </div>`;
+  feed.insertBefore(div, typing);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function setTyping(v) {
+  document.getElementById('typing').classList.toggle('visible', v);
+  document.getElementById('send-btn').disabled = v;
+  isLoading = v;
+  document.getElementById('messages').scrollTop = 99999;
+}
+
+/* ═══════════════════════════════════════════════
+   SEND QUERY
+═══════════════════════════════════════════════ */
+async function sendQuery() {
+  if (isLoading) return;
+  const inp = document.getElementById('query-input');
+  const query = inp.value.trim();
+  if (!query) return;
+
+  inp.value = '';
+  inp.style.height = 'auto';
+
+  const detected = detectSurface(query);
+  if (detected && !selectedTournament) setSurface(detected);
+
+  addMessage('user', escHtml(query));
+  setTyping(true);
+  clearDashboard();
+
+  // Build request — inject tournament context if selected
+  const reqBody = {
+    query,
+    best_of: currentBestOf,
+    surface: currentSurface,
+  };
+  if (selectedTournament) {
+    reqBody.tournament_name = selectedTournament.name;
+    reqBody.tournament_category = selectedTournament.category;
+    reqBody.surface = selectedTournament.surface || currentSurface;
+  }
+
+  try {
+    const res = await fetch(`${API}/api/ask`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(reqBody),
+    });
+    if (!res.ok) throw new Error(`Server error ${res.status}`);
+    const data = await res.json();
+    setTyping(false);
+    handleResponse(data);
+  } catch(err) {
+    setTyping(false);
+    addMessage('bot', `⚠️ Could not reach the Oracle API. Make sure <code>atp-agent</code> server is running.<br><small>${escHtml(err.message)}</small>`);
+  }
+}
+
+function handleResponse(data) {
+  addMessage('bot', escHtml(data.answer));
+  if (data.requires_clarification) { showClarification(data.clarification_question); return; }
+  if (data.intent) showIntent(data.intent);
+  if (data.entities) showMatchHeader(data.entities);
+  if (data.prediction) renderPredictions(data.prediction, data.entities);
+}
+
+/* ═══════════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════════ */
+function clearDashboard() {
+  document.getElementById('empty-state').classList.remove('hidden');
+  document.getElementById('match-header').classList.remove('visible');
+  document.getElementById('match-meta').style.display = 'none';
+  document.getElementById('clarification-card').classList.remove('visible');
+  document.getElementById('intent-badge').classList.remove('visible');
+  document.getElementById('pred-grid').innerHTML = '';
+  const ss = document.getElementById('stats-sections');
+  ss.innerHTML = '';
+  ss.style.display = 'none';
+}
+
+function showClarification(q) {
+  document.getElementById('empty-state').classList.add('hidden');
+  document.getElementById('clarif-text').textContent = q || 'Could you provide more details?';
+  document.getElementById('clarification-card').classList.add('visible');
+}
+
+function showIntent(intent) {
+  document.getElementById('empty-state').classList.add('hidden');
+  const badge = document.getElementById('intent-badge');
+  badge.textContent = intent.replace(/_/g, ' ');
+  badge.classList.add('visible');
+}
+
+function showMatchHeader(entities) {
+  if (!entities || (!entities.player_a && !entities.player_b)) return;
+  document.getElementById('empty-state').classList.add('hidden');
+  document.getElementById('name-a').textContent = entities.player_a || '—';
+  document.getElementById('name-b').textContent = entities.player_b || '—';
+  document.getElementById('match-header').classList.add('visible');
+
+  const metaEl = document.getElementById('match-meta');
+  metaEl.innerHTML = ''; metaEl.style.display = 'flex';
+  const addTag = (label, highlight=false) => {
+    if (!label) return;
+    const t = document.createElement('span');
+    t.className = 'meta-tag' + (highlight ? ' highlight' : '');
+    t.textContent = label;
+    metaEl.appendChild(t);
+  };
+  // Show tournament name if selected
+  if (selectedTournament) addTag(selectedTournament.name, true);
+  addTag(entities.surface, !selectedTournament);
+  addTag(entities.tournament_category);
+  addTag(entities.round);
+  addTag(entities.best_of ? `Best of ${entities.best_of}` : null);
+}
+
+/* ═══════════════════════════════════════════════
+   PREDICTION CARDS RENDERER
+═══════════════════════════════════════════════ */
+function renderPredictions(pred, entities) {
+  const grid = document.getElementById('pred-grid');
+  grid.innerHTML = '';
+  document.getElementById('empty-state').classList.add('hidden');
+
+  const pa = entities?.player_a || 'Player A';
+  const pb = entities?.player_b || 'Player B';
+
+  // Player-not-found warning
+  const notFound = pred.players_not_found;
+  if (notFound && notFound.length > 0) {
+    const names = notFound.map(n => `<strong>${escHtml(n)}</strong>`).join(' e ');
+    const warn = document.createElement('div');
+    warn.className = 'player-not-found-banner';
+    warn.innerHTML = `⚠️ Profilo non trovato per ${names}. Le predizioni si basano su valori medi — potrebbero essere meno accurate.`;
+    grid.appendChild(warn);
+  }
+
+  let delay = 0;
+  const nextDelay = () => { delay += 55; return delay; };
+
+  // Win probability
+  if (pred.win_probability_player_a != null) {
+    const pA = pred.win_probability_player_a;
+    const pB = pred.win_probability_player_b ?? (1 - pA);
+    const winner = pred.predicted_winner;
+    const card = makeCard(`
+      <div class="card-label"><span class="icon">🏆</span> Win Probability</div>
+      <div class="win-bar-wrap">
+        <div class="player-row">
+          <span class="player-label">${escHtml(pa)}</span>
+          <div class="bar-track"><div class="bar-fill a" id="bar-a" style="width:0%"></div></div>
+          <span class="pct-label" id="pct-a">—</span>
+          ${winner === pa ? '<span class="winner-crown">👑</span>' : '<span class="winner-crown" style="opacity:0">.</span>'}
+        </div>
+        <div class="player-row">
+          <span class="player-label">${escHtml(pb)}</span>
+          <div class="bar-track"><div class="bar-fill b" id="bar-b" style="width:0%"></div></div>
+          <span class="pct-label" id="pct-b">—</span>
+          ${winner === pb ? '<span class="winner-crown">👑</span>' : '<span class="winner-crown" style="opacity:0">.</span>'}
+        </div>
+      </div>`, 'wide');
+    card.style.animationDelay = nextDelay() + 'ms';
+    grid.appendChild(card);
+    setTimeout(() => {
+      document.getElementById('bar-a').style.width = (pA*100).toFixed(1) + '%';
+      document.getElementById('bar-b').style.width = (pB*100).toFixed(1) + '%';
+      animateNumber('pct-a', 0, pA*100, 1, '%');
+      animateNumber('pct-b', 0, pB*100, 1, '%');
+    }, delay + 100);
+  }
+
+  // Expected aces – player A
+  if (pred.expected_aces_player_a != null) {
+    const card = makeCard(`
+      <div class="card-label"><span class="icon">⚡</span> Expected Aces — ${escHtml(pa)}</div>
+      <div class="big-num">${pred.expected_aces_player_a.toFixed(1)}</div>
+      <div class="big-num-unit">aces per match</div>`);
+    card.style.animationDelay = nextDelay() + 'ms';
+    grid.appendChild(card);
+  }
+
+  // Total aces
+  if (pred.expected_total_aces != null) {
+    const card = makeCard(`
+      <div class="card-label"><span class="icon">🎯</span> Total Aces</div>
+      <div class="big-num">${pred.expected_total_aces.toFixed(1)}</div>
+      <div class="big-num-unit">combined aces in the match</div>`);
+    card.style.animationDelay = nextDelay() + 'ms';
+    grid.appendChild(card);
+  }
+
+  // Total games
+  if (pred.expected_total_games != null) {
+    const card = makeCard(`
+      <div class="card-label"><span class="icon">📊</span> Total Games</div>
+      <div class="big-num">${pred.expected_total_games.toFixed(1)}</div>
+      <div class="big-num-unit">games expected</div>`);
+    card.style.animationDelay = nextDelay() + 'ms';
+    grid.appendChild(card);
+  }
+
+  // Sets played + Predicted score
+  if (pred.expected_sets_played != null) {
+    const setsRaw = pred.expected_sets_played;
+    const setsRnd = Math.round(setsRaw);
+    const bestOf  = entities?.best_of ?? currentBestOf;
+    const setsToWin = Math.ceil(bestOf / 2);
+    const setsLost  = setsRnd - setsToWin;
+    const scoreStr  = setsLost >= 0 ? `${setsToWin}–${Math.max(0, setsLost)}` : `${setsToWin}–0`;
+    const winner = pred.predicted_winner || pa;
+    const card = makeCard(`
+      <div class="card-label"><span class="icon">🏆</span> Predicted Score</div>
+      <div class="big-num">${escHtml(scoreStr)}</div>
+      <div class="big-num-unit">${escHtml(winner)} wins in ${setsRnd} set${setsRnd !== 1 ? 's' : ''}</div>
+      <div class="big-num-sub">(avg ${setsRaw.toFixed(1)} sets)</div>`);
+    card.style.animationDelay = nextDelay() + 'ms';
+    grid.appendChild(card);
+  }
+
+  // Deciding set probability
+  if (pred.prob_deciding_set != null) {
+    grid.appendChild(makeProbRing('Deciding Set','🔥', pred.prob_deciding_set,
+      'Probability the match goes to a deciding set', nextDelay()));
+  }
+
+  // Tiebreak probability
+  if (pred.prob_tiebreak != null) {
+    grid.appendChild(makeProbRing('Tie-Break','🤝', pred.prob_tiebreak,
+      'Probability of at least one tie-break', nextDelay()));
+  }
+
+  // First set winner
+  if (pred.prob_player_a_first_set != null) {
+    const pA = pred.prob_player_a_first_set, pB = 1 - pA;
+    const card = makeCard(`
+      <div class="card-label"><span class="icon">🎯</span> First Set Winner</div>
+      <div class="win-bar-wrap">
+        <div class="player-row">
+          <span class="player-label">${escHtml(pa)}</span>
+          <div class="bar-track"><div class="bar-fill a" id="fs-bar-a" style="width:0%"></div></div>
+          <span class="pct-label" id="fs-pct-a">—</span>
+        </div>
+        <div class="player-row">
+          <span class="player-label">${escHtml(pb)}</span>
+          <div class="bar-track"><div class="bar-fill b" id="fs-bar-b" style="width:0%"></div></div>
+          <span class="pct-label" id="fs-pct-b">—</span>
+        </div>
+      </div>`, 'wide');
+    card.style.animationDelay = nextDelay() + 'ms';
+    grid.appendChild(card);
+    setTimeout(() => {
+      document.getElementById('fs-bar-a').style.width = (pA*100).toFixed(1)+'%';
+      document.getElementById('fs-bar-b').style.width = (pB*100).toFixed(1)+'%';
+      animateNumber('fs-pct-a', 0, pA*100, 1, '%');
+      animateNumber('fs-pct-b', 0, pB*100, 1, '%');
+    }, delay + 100);
+  }
+
+  // H2H History
+  const h2hCard = makeCard(`
+    <div class="card-label"><span class="icon">⚔️</span> Head-to-Head History</div>
+    <div id="h2h-content"><span style="color:var(--muted);font-size:0.8rem;">Loading...</span></div>`, 'wide');
+  h2hCard.style.animationDelay = nextDelay() + 'ms';
+  grid.appendChild(h2hCard);
+  fetchH2H(pa, pb);
+
+  // ── Stats sections (tournament + players) ──────────────────────────
+  renderStatsSection(pa, pb, entities, nextDelay);
+
+  // ── "Perché queste predizioni?" ──────────────────────────────────
+  if (pred.explanation && pred.explanation.length > 0) {
+    window._lastExplanation = pred.explanation;
+    window._lastPrediction = pred;
+    window._lastPlayerA = pa;
+    window._lastPlayerB = pb;
+    window._lastSurface = entities?.surface || currentSurface;
+
+    const explainCard = makeCard(`
+      <button class="explain-btn" onclick="requestExplanation()" id="explain-btn">
+        <span class="btn-text">🧠 Perché queste predizioni?</span>
+        <div class="spinner"></div>
+        <span class="loading-text" style="display:none">Analisi in corso...</span>
+      </button>
+      <div id="explain-result"></div>`, 'wide');
+    explainCard.style.animationDelay = nextDelay() + 'ms';
+    grid.appendChild(explainCard);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   STATS SECTIONS
+═══════════════════════════════════════════════ */
+async function renderStatsSection(pa, pb, entities, nextDelay) {
+  const container = document.getElementById('stats-sections');
+  container.innerHTML = '';
+  container.style.display = 'flex';
+
+  // 1. Tournament stats (from selected tournament or from entities surface)
+  const tourn = selectedTournament;
+  if (tourn) {
+    const tSection = document.createElement('div');
+    tSection.className = 'stats-section pred-card wide';
+    tSection.innerHTML = `
+      <div class="stats-section-header">
+        <span class="stats-section-title">🏟️ Statistiche Torneo — ${escHtml(tourn.name)}</span>
+        <div class="stats-section-accent"></div>
+      </div>
+      <div class="stats-grid">
+        ${statItem('Superficie', capFirst(tourn.surface || '—'), null, 'accent')}
+        ${statItem('Categoria', tourn.category || '—')}
+        ${statItem('Match nel DB', tourn.t_n_matches > 0 ? tourn.t_n_matches : '—')}
+        ${tourn.t_avg_aces_per_match > 0 ? statItem('Ace medi/match', tourn.t_avg_aces_per_match.toFixed(1)) : ''}
+        ${tourn.t_avg_games_per_match > 0 ? statItem('Game medi/match', tourn.t_avg_games_per_match.toFixed(1)) : ''}
+        ${tourn.t_avg_sets_played > 0 ? statItem('Set medi/match', tourn.t_avg_sets_played.toFixed(2)) : ''}
+        ${tourn.t_tiebreak_pct > 0 ? statItem('% Tie-break', (tourn.t_tiebreak_pct*100).toFixed(1) + '%') : ''}
+        ${tourn.t_avg_service_pts_won_pct > 0 ? statItem('Serv. pts vinti', (tourn.t_avg_service_pts_won_pct*100).toFixed(1) + '%') : ''}
+        ${tourn.t_avg_return_pts_won_pct > 0 ? statItem('Ret. pts vinti', (tourn.t_avg_return_pts_won_pct*100).toFixed(1) + '%') : ''}
+      </div>`;
+    container.appendChild(tSection);
+  }
+
+  // 2. Player stats side by side (async)
+  const playersWrap = document.createElement('div');
+  playersWrap.className = 'players-stats-wrap';
+  playersWrap.innerHTML = `
+    <div class="player-stats-card" id="stats-pa">
+      <div class="player-stats-name">${escHtml(pa)}</div>
+      <div style="color:var(--muted);font-size:0.78rem">Caricamento...</div>
+    </div>
+    <div class="player-stats-card" id="stats-pb">
+      <div class="player-stats-name b-player">${escHtml(pb)}</div>
+      <div style="color:var(--muted);font-size:0.78rem">Caricamento...</div>
+    </div>`;
+  container.appendChild(playersWrap);
+
+  const surf = selectedTournament?.surface || entities?.surface || currentSurface;
+
+  // Fetch both players in parallel
+  const [statsA, statsB] = await Promise.all([
+    fetchPlayerStats(pa),
+    fetchPlayerStats(pb),
+  ]);
+  renderPlayerStatsCard('stats-pa', pa, statsA, surf, false);
+  renderPlayerStatsCard('stats-pb', pb, statsB, surf, true);
+}
+
+async function fetchPlayerStats(playerName) {
+  try {
+    const res = await fetch(`${API}/api/player_stats`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({player_name: playerName}),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch(e) {
+    return null;
+  }
+}
+
+function renderPlayerStatsCard(cardId, playerName, data, surface, isB) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+
+  if (!data || !data.found) {
+    card.innerHTML = `
+      <div class="player-stats-name ${isB ? 'b-player' : ''}">${escHtml(playerName)}</div>
+      <div style="color:var(--muted);font-size:0.78rem;margin-top:8px;">Profilo non disponibile</div>`;
+    return;
+  }
+
+  const s = data.stats || {};
+  const surfKey = (surface || 'hard').toLowerCase().replace('carpet','hard');
+
+  // Pick surface-specific stats where available, fallback to career
+  const getS = (...keys) => {
+    for (const k of keys) {
+      const v = s[k];
+      if (v != null && !isNaN(v)) return v;
+    }
+    return null;
+  };
+
+  const pct = v => v != null ? (v * 100).toFixed(1) + '%' : '—';
+  const num = (v, d=1) => v != null ? v.toFixed(d) : '—';
+  const elo = getS('elo');
+
+  const rows = [
+    ['Win rate career',    pct(getS('pa_career_win_rate'))],
+    ['Win rate ' + capFirst(surfKey), pct(getS(`pa_${surfKey}_career_win_rate`))],
+    ['Form (ultimi 5)',    pct(getS('pa_form_last5'))],
+    ['Win rate last 10',  pct(getS('pa_last10_win_rate'))],
+    ['Ace/match career',  num(getS('pa_career_aces_per_match'))],
+    ['Ace/match last 10', num(getS('pa_last10_aces_per_match'))],
+    ['1ª serv. pts vinti', pct(getS(`pa_${surfKey}_career_first_serve_pts_won_pct`, 'pa_career_first_serve_pts_won_pct'))],
+    ['Serv. pts vinti',   pct(getS(`pa_${surfKey}_career_service_pts_won_pct`, 'pa_career_service_pts_won_pct'))],
+    ['Ret. pts vinti',    pct(getS(`pa_${surfKey}_career_return_pts_won_pct`, 'pa_career_return_pts_won_pct'))],
+    ...(elo != null ? [['Elo rating', Math.round(elo)]] : []),
+  ];
+
+  const rowsHtml = rows.map(([label, val]) => `
+    <div class="stat-row">
+      <span class="stat-row-label">${escHtml(label)}</span>
+      <span class="stat-row-value">${escHtml(String(val))}</span>
+    </div>`).join('');
+
+  card.innerHTML = `
+    <div class="player-stats-name ${isB ? 'b-player' : ''}">${escHtml(data.player_name || playerName)}</div>
+    ${rowsHtml}`;
+}
+
+function statItem(label, value, sub=null, valueClass='') {
+  return `
+    <div class="stat-item">
+      <div class="stat-item-label">${escHtml(label)}</div>
+      <div class="stat-item-value ${valueClass}">${escHtml(String(value ?? '—'))}</div>
+      ${sub ? `<div class="stat-item-sub">${escHtml(sub)}</div>` : ''}
+    </div>`;
+}
+
+function capFirst(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+/* ═══════════════════════════════════════════════
+   CARD BUILDERS
+═══════════════════════════════════════════════ */
+function makeCard(html, extraClass='') {
+  const card = document.createElement('div');
+  card.className = 'pred-card' + (extraClass ? ' ' + extraClass : '');
+  card.innerHTML = html;
+  return card;
+}
+
+function makeProbRing(title, icon, prob, desc, delayMs) {
+  const pct = Math.round(prob * 100);
+  const circ = 2 * Math.PI * 36;
+  const dash = circ - (circ * prob);
+  const id = 'ring-' + Math.random().toString(36).slice(2,7);
+  const card = makeCard(`
+    <div class="card-label"><span class="icon">${icon}</span> ${escHtml(title)}</div>
+    <div class="ring-wrap">
+      <svg class="ring-svg" width="88" height="88" viewBox="0 0 88 88">
+        <circle class="ring-track" cx="44" cy="44" r="36" stroke-width="7"/>
+        <circle class="ring-arc" id="${id}" cx="44" cy="44" r="36"
+          stroke-width="7" stroke-dasharray="${circ}" stroke-dashoffset="${circ}"
+          transform="rotate(-90 44 44)"/>
+        <text class="ring-text" x="44" y="44" id="${id}-text">0%</text>
+      </svg>
+      <div class="ring-info">
+        <div class="ring-pct" id="${id}-pct">0%</div>
+        <div class="ring-desc">${escHtml(desc)}</div>
+      </div>
+    </div>`);
+  card.style.animationDelay = delayMs + 'ms';
+  setTimeout(() => {
+    const arc = document.getElementById(id);
+    const txt = document.getElementById(id + '-text');
+    const pctEl = document.getElementById(id + '-pct');
+    if (arc) arc.style.strokeDashoffset = dash;
+    animateNumber(id + '-text', 0, pct, 0, '%', txt);
+    animateNumber(id + '-pct', 0, pct, 0, '%', pctEl);
+  }, delayMs + 200);
+  return card;
+}
+
+/* ═══════════════════════════════════════════════
+   ANIMATED NUMBER COUNTER
+═══════════════════════════════════════════════ */
+function animateNumber(id, from, to, decimals, suffix='', el=null) {
+  const elem = el || document.getElementById(id);
+  if (!elem) return;
+  const duration = 1200;
+  const start = performance.now();
+  const step = (now) => {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    elem.textContent = (from + (to - from) * ease).toFixed(decimals) + suffix;
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+/* ═══════════════════════════════════════════════
+   H2H HISTORY FETCH
+═══════════════════════════════════════════════ */
+async function fetchH2H(playerA, playerB) {
+  const container = document.getElementById('h2h-content');
+  if (!container) return;
+  try {
+    const res = await fetch(`${API}/api/h2h`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({player_a: playerA, player_b: playerB}),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.matches || data.matches.length === 0) {
+      container.innerHTML = '<span style="color:var(--muted);font-size:0.8rem;">Nessun precedente trovato tra questi giocatori.</span>';
+      return;
+    }
+    const rows = data.matches.map(m => `
+      <tr>
+        <td>${escHtml(m.date)}</td>
+        <td>${escHtml(m.tournament)}</td>
+        <td><span class="h2h-surface-tag">${escHtml(m.surface)}</span></td>
+        <td class="h2h-winner">${escHtml(m.winner)}</td>
+        <td>${escHtml(m.score)}</td>
+      </tr>`).join('');
+    container.innerHTML = `
+      <table class="h2h-table">
+        <thead><tr>
+          <th>Data</th><th>Torneo</th><th>Superficie</th><th>Vincitore</th><th>Risultato</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(err) {
+    container.innerHTML = `<span style="color:var(--danger);font-size:0.8rem;">Errore H2H: ${escHtml(err.message)}</span>`;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   EXPLAIN PREDICTIONS (GROQ LLM)
+═══════════════════════════════════════════════ */
+async function requestExplanation() {
+  const btn = document.getElementById('explain-btn');
+  const resultDiv = document.getElementById('explain-result');
+  if (!btn || !window._lastExplanation) return;
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.querySelector('.loading-text').style.display = 'inline';
+  resultDiv.innerHTML = '';
+  try {
+    const res = await fetch(`${API}/api/explain`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        player_a: window._lastPlayerA,
+        player_b: window._lastPlayerB,
+        surface: window._lastSurface,
+        prediction: window._lastPrediction,
+        explanation: window._lastExplanation,
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    resultDiv.innerHTML = `<div class="explain-result">${escHtml(data.explanation)}</div>`;
+  } catch(err) {
+    resultDiv.innerHTML = `<div class="explain-result" style="border-color:var(--danger);color:var(--danger);">Errore: ${escHtml(err.message)}</div>`;
+  } finally {
+    btn.classList.remove('loading');
+    btn.querySelector('.loading-text').style.display = 'none';
+    btn.querySelector('.btn-text').style.display = 'inline';
+    btn.disabled = false;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   EXAMPLE QUERIES
+═══════════════════════════════════════════════ */
+function useExample(btn) {
+  const inp = document.getElementById('query-input');
+  inp.value = btn.textContent;
+  inp.focus();
+  autoResize(inp);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+document.getElementById('query-input').addEventListener('input', function() { autoResize(this); });
+document.getElementById('query-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQuery(); }
+});
+
+/* ═══════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════ */
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+/* ─── Init ─── */
+(async () => {
+  // Health check
+  try {
+    const r = await fetch(`${API}/api/health`);
+    document.querySelector('.status-dot').style.background = r.ok ? 'var(--accent)' : 'var(--danger)';
+    if (!r.ok) document.querySelector('.status-dot').title = 'API offline';
+  } catch {
+    document.querySelector('.status-dot').style.background = 'var(--danger)';
+    document.querySelector('.status-dot').title = 'API offline';
+  }
+  // Load tournaments
+  await loadTournaments();
+})();
+</script>
+</body>
+</html>
