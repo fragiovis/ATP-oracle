@@ -18,6 +18,8 @@ from typing import Any
 
 import pandas as pd
 
+from storage.canonical import canonical_surface, canonical_tournament
+
 logger = logging.getLogger(__name__)
 
 
@@ -207,7 +209,7 @@ class DataNormaliser:
                 "match_id": mid,
                 "match_date": match_date,
                 "tournament_id": m.get("tournament_id", ""),
-                "tournament_name": m.get("tournament_name", ""),
+                "tournament_name": canonical_tournament(m.get("tournament_name", "")),
                 "tournament_category": m.get("tournament_category", ""),
                 "round": round_,
                 "surface": surface,
@@ -265,15 +267,6 @@ class DataNormaliser:
 
     @staticmethod
     def _normalise_surface(raw: str) -> str:
-        raw = (raw or "").lower().strip()
-        if "clay" in raw:
-            return "clay"
-        if "grass" in raw:
-            return "grass"
-        if "hard" in raw:
-            if "indoor" in raw or "carpet" in raw:
-                return "indoor_hard"
-            return "hard"
-        if "carpet" in raw or "indoor" in raw:
-            return "indoor_hard"
-        return raw or "unknown"
+        """Map to one of clay/hard/grass. Indoor hard and carpet become "hard";
+        the indoor/outdoor distinction lives in the separate `indoor` column."""
+        return canonical_surface(raw)

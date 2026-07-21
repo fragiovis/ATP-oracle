@@ -42,11 +42,13 @@ LEVEL_MAP = {
     "C": "Challenger",
 }
 
+# Surfaces are always one of clay/hard/grass — carpet collapses to "hard" and
+# the indoor/outdoor distinction is carried by the `indoor` flag instead.
 SURFACE_MAP = {
     "Clay":  "clay",
     "Hard":  "hard",
     "Grass": "grass",
-    "Carpet": "indoor_hard",
+    "Carpet": "hard",
 }
 
 
@@ -209,11 +211,12 @@ class SackmannLoader:
             if len(raw_date) == 8:
                 match_date = f"{raw_date[:4]}-{raw_date[4:6]}-{raw_date[6:]}"
 
-            surface = SURFACE_MAP.get(str(row.get("surface", "")), "hard")
+            surf_raw = str(row.get("surface", ""))
+            surface = SURFACE_MAP.get(surf_raw, "hard")
             level   = str(row.get("tourney_level", "A"))
             cat     = LEVEL_MAP.get(level, "ATP 250")
             best_of = int(row["best_of"]) if pd.notna(row.get("best_of")) else 3
-            indoor  = surface == "indoor_hard"
+            indoor  = surf_raw == "Carpet"
 
             match_rows.append({
                 "match_id":            mid,

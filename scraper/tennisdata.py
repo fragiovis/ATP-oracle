@@ -41,13 +41,18 @@ SERIES_MAP = {
     "international gold": "ATP 500",
 }
 
+# Surfaces are always one of clay/hard/grass — carpet and indoor hard collapse
+# to "hard" and the indoor/outdoor distinction is carried by `indoor` instead.
 SURFACE_MAP = {
     "clay":   "clay",
     "hard":   "hard",
     "grass":  "grass",
-    "carpet": "indoor_hard",
-    "indoor hard": "indoor_hard",
+    "carpet": "hard",
+    "indoor hard": "hard",
 }
+
+# Raw surface values that imply an indoor court
+_INDOOR_SURFACES = {"carpet", "indoor hard"}
 
 
 class TennisDataLoader:
@@ -122,7 +127,7 @@ class TennisDataLoader:
             # Surface
             surf_raw = str(row.get("Surface", "") or "").lower()
             surface  = SURFACE_MAP.get(surf_raw, "hard")
-            indoor   = surface == "indoor_hard" or str(row.get("Court", "")).lower() == "indoor"
+            indoor   = surf_raw in _INDOOR_SURFACES or str(row.get("Court", "")).lower() == "indoor"
 
             # Tournament category
             series_raw = str(row.get("Series", "") or "").lower().strip()

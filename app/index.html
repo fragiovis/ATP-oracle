@@ -25,7 +25,6 @@
   --surf-clay:  #c8773a;
   --surf-hard:  #1b6cbf;
   --surf-grass: #2e8b57;
-  --surf-indoor:#7b4ca8;
 
   --surf-color: var(--surf-hard);
   --surf-glow:  rgba(27,108,191,0.35);
@@ -36,7 +35,6 @@
 }
 [data-surface="clay"]   { --surf-color:var(--surf-clay);  --surf-glow:rgba(200,119,58,0.35);  }
 [data-surface="grass"]  { --surf-color:var(--surf-grass); --surf-glow:rgba(46,139,87,0.35);   }
-[data-surface="indoor"] { --surf-color:var(--surf-indoor);--surf-glow:rgba(123,76,168,0.35);  }
 [data-surface="hard"]   { --surf-color:var(--surf-hard);  --surf-glow:rgba(27,108,191,0.35);  }
 
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
@@ -221,7 +219,6 @@ body {
 }
 .surface-pill[data-val="clay"].active   { background:var(--surf-clay);  border-color:var(--surf-clay);  }
 .surface-pill[data-val="grass"].active  { background:var(--surf-grass); border-color:var(--surf-grass); }
-.surface-pill[data-val="indoor"].active { background:var(--surf-indoor);border-color:var(--surf-indoor);}
 .surface-pill[data-val="hard"].active   { background:var(--surf-hard);  border-color:var(--surf-hard);  }
 
 #bestof-toggle {
@@ -943,7 +940,6 @@ body {
       <button class="surface-pill" data-val="clay" onclick="setSurface('clay')">Clay</button>
       <button class="surface-pill active" data-val="hard" onclick="setSurface('hard')">Hard</button>
       <button class="surface-pill" data-val="grass" onclick="setSurface('grass')">Grass</button>
-      <button class="surface-pill" data-val="indoor" onclick="setSurface('indoor')">Indoor</button>
     </div>
 
     <button id="bestof-toggle" onclick="toggleBestOf()" title="Match format">
@@ -1060,7 +1056,16 @@ async function loadTournaments() {
 }
 
 const CAT_ORDER = ['Grand Slam', 'ATP 1000', 'ATP 500', 'ATP 250', 'Other'];
-const SURFACE_LABELS = { clay:'Clay', hard:'Hard', grass:'Grass', indoor:'Indoor' };
+// Only three surfaces exist in the model: indoor hard and carpet map to 'hard'.
+const SURFACE_LABELS = { clay:'Clay', hard:'Hard', grass:'Grass' };
+
+// Coerce any surface value coming from the API/query into clay|hard|grass.
+function normSurface(s) {
+  const v = (s || '').toLowerCase();
+  if (v.includes('clay')) return 'clay';
+  if (v.includes('grass')) return 'grass';
+  return 'hard';
+}
 
 function buildCategoryDropdown() {
   const sel = document.getElementById('tourn-category');
@@ -1090,7 +1095,7 @@ function onCategoryChange() {
   filtered.forEach(t => {
     const opt = document.createElement('option');
     opt.value = t.name;
-    const surfLabel = SURFACE_LABELS[t.surface] || t.surface;
+    const surfLabel = SURFACE_LABELS[normSurface(t.surface)];
     opt.textContent = `${t.name} (${surfLabel})`;
     nameSel.appendChild(opt);
   });
@@ -1103,7 +1108,7 @@ function onTournamentSelect() {
 
   selectedTournament = allTournaments.find(t => t.name === name) || null;
   if (selectedTournament) {
-    setSurface(selectedTournament.surface || 'hard');
+    setSurface(normSurface(selectedTournament.surface));
     showTournBadge(selectedTournament);
   }
 }
@@ -1130,6 +1135,7 @@ function hideTournBadge() {
    SURFACE THEMING
 ═══════════════════════════════════════════════ */
 function setSurface(s) {
+  s = normSurface(s);
   currentSurface = s;
   document.body.dataset.surface = s;
   document.querySelectorAll('.surface-pill').forEach(p => {
@@ -1154,8 +1160,8 @@ function detectSurface(text) {
   const t = text.toLowerCase();
   if (t.includes('clay') || t.includes('terra')) return 'clay';
   if (t.includes('grass') || t.includes('erba') || t.includes('wimbledon')) return 'grass';
-  if (t.includes('indoor') || t.includes('carpet')) return 'indoor';
-  if (t.includes('hard')) return 'hard';
+  // Indoor / carpet courts are modelled as hard — there is no indoor surface.
+  if (t.includes('indoor') || t.includes('carpet') || t.includes('hard')) return 'hard';
   return null;
 }
 
@@ -1550,7 +1556,7 @@ function renderPlayerStatsCard(cardId, playerName, data, surface, isB) {
   }
 
   const s = data.stats || {};
-  const surfKey = (surface || 'hard').toLowerCase().replace('carpet','hard');
+  const surfKey = normSurface(surface);
 
   // Pick surface-specific stats where available, fallback to career
   const getS = (...keys) => {

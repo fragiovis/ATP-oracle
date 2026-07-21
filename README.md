@@ -18,10 +18,16 @@ python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install --upgrade pip
 pip install -r requirements.txt  # or: requirements-dev.txt to include tests/lint
-pip install -e .                 # installs the atp-* CLI entry points
 
-# 2b. Install the headless browser used by the scraper
+# 2b. REQUIRED — install the project itself, otherwise the atp-* commands
+#     (atp-serve, atp-train, …) will not exist: "command not found".
+pip install -e .
+
+# 2c. Install the headless browser used by the scraper
 playwright install chromium
+
+# 2d. Check it worked — should print a path inside .venv/bin
+which atp-serve
 
 # 3. Configure secrets — copy the template and fill in your keys
 cp .env.example .env             # then edit .env
@@ -292,3 +298,66 @@ Tests cover:
 - **Graceful degradation**: missing ATP stats (pages that don't exist or parse failures) are handled without crashing; the feature pipeline falls back to a smaller feature subset.
 - **Modular agent**: the NLP parser can be replaced (e.g. with a local model) without changing the serving or model layers.
 - **Idempotent jobs**: scraping and feature generation use checkpointing and overwrite logic, so they are safe to re-run.
+
+---
+
+## Troubleshooting
+
+### `atp-serve: command not found` (or `atp-train`, `atp-scrape`, …)
+
+The project itself was not installed — `requirements.txt` only installs the
+libraries, while the `atp-*` commands are entry points created by installing
+the package:
+
+```bash
+source .venv/bin/activate
+pip install -e .
+which atp-serve            # must point inside .venv/bin
+```
+
+Still failing? Check these in order:
+
+1. **Is the venv active?** The prompt should show `(.venv)`.
+   `which python` must point inside `.venv/bin`.
+2. **Mixed interpreters?** Install through the interpreter itself so pip and
+   python cannot diverge: `python -m pip install -e .`
+3. **Workaround** — the server also runs without the entry points, from the
+   project directory: `python -m uvicorn serving.api:app --port 8000`
+
+### `Address already in use` on port 8000
+
+A previous server is still running:
+
+```bash
+lsof -ti:8000 | xargs kill
+```
+
+### Predictions look stale after retraining
+
+The predictor is a lazy singleton cached in memory, so it does not hot-reload.
+**Restart `atp-serve`** after `atp-train run`.
+
+### `Rankings snapshot empty or missing columns — rank features will be NaN`
+
+The rankings snapshot is missing or has unexpected columns, so rank features
+fall back to NaN and predictions are degraded. Regenerate it with
+`atp-scrape run`, and verify with:
+
+```bash
+python -c "from storage.writer import Writer; df = Writer().read_rankings_snapshot(); print(len(df), list(df.columns))"
+```
+
+It must contain the `player_name` and `rank` columns.
+
+### `Groq parse failed (403 …) – falling back to heuristic`
+
+`GROQ_API_KEY` is missing, expired, or blocked. Predictions still work, but
+natural-language parsing is degraded. Check that `.env` contains a valid key
+and that the shell running the server actually loads it.
+
+### Models load from the local cache instead of S3
+
+The loaders fall back to `.cache/` **silently** when AWS credentials are
+expired or absent — you only see a `WARNING` in the logs. Export valid
+credentials before starting the server, and check the startup logs for
+`Loaded <model> from S3 run <run_id>` versus `falling back to local cache`.

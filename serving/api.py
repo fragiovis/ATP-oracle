@@ -24,6 +24,7 @@ from pydantic import BaseModel
 
 from agent.agent import PrimaryAgent
 from serving.predictor import MatchPredictor, MatchRequest
+from storage.canonical import canonical_surface, canonical_tournament
 
 logger = logging.getLogger(__name__)
 
@@ -288,24 +289,60 @@ async def get_tournaments():
 
     matches = _get_matches()
 
-    # Build category + surface per tournament from matches table
+    # Build category + surface per tournament from matches table.
+    # Surface and category are decided by MAJORITY VOTE over the tournament's
+    # matches, not by whichever row happens to come first — a handful of
+    # mislabelled historical rows used to make e.g. the Australian Open show up
+    # as "Grass". Names are canonicalised first so variants of the same event
+    # (e.g. "French Open" / "Roland Garros") vote together.
     tourn_meta: dict[str, dict] = {}
     if not matches.empty and "tournament_name" in matches.columns:
-        for _, row in matches[["tournament_name", "surface", "tournament_category"]].drop_duplicates(
-            subset="tournament_name"
-        ).iterrows():
-            name = str(row.get("tournament_name", ""))
-            if name:
-                tourn_meta[name] = {
-                    "surface": str(row.get("surface", "hard") or "hard").lower(),
-                    "category": str(row.get("tournament_category", "ATP 250") or "ATP 250"),
-                }
+        meta_src = matches[["tournament_name", "surface", "tournament_category"]].copy()
+        meta_src["tournament_name"] = meta_src["tournament_name"].map(canonical_tournament)
+        meta_src["surface"] = meta_src["surface"].map(canonical_surface)
+        meta_src = meta_src[meta_src["tournament_name"] != ""]
+
+        for name, grp in meta_src.groupby("tournament_name"):
+            surf_votes = grp["surface"].value_counts()
+            cat_votes = grp["tournament_category"].dropna().astype(str)
+            cat_votes = cat_votes[cat_votes != ""].value_counts()
+            tourn_meta[str(name)] = {
+                "surface": str(surf_votes.idxmax()) if not surf_votes.empty else "hard",
+                "category": str(cat_votes.idxmax()) if not cat_votes.empty else "ATP 250",
+            }
 
     # Normalise: tournament_name may be a column or the index
     if "tournament_name" not in df.columns and df.index.name == "tournament_name":
         df = df.reset_index()
     elif "tournament_name" not in df.columns:
         df = df.reset_index().rename(columns={"index": "tournament_name"})
+
+    # Collapse name variants of the same event into a single entry. Where a
+    # canonical name has several profile rows, their t_* stats are combined as
+    # a weighted average over t_n_matches so the UI shows one row per event.
+    df = df.copy()
+    df["tournament_name"] = df["tournament_name"].map(canonical_tournament)
+    df = df[df["tournament_name"] != ""]
+
+    _stat_cols = [
+        "t_avg_aces_per_match", "t_avg_games_per_match", "t_avg_sets_played",
+        "t_tiebreak_pct", "t_avg_service_pts_won_pct", "t_avg_return_pts_won_pct",
+    ]
+    if df["tournament_name"].duplicated().any():
+        df["_w"] = pd.to_numeric(df.get("t_n_matches"), errors="coerce").fillna(0.0)
+        agg_rows = []
+        for name, grp in df.groupby("tournament_name"):
+            w = grp["_w"]
+            total = float(w.sum())
+            row = {"tournament_name": name, "t_n_matches": total}
+            for c in _stat_cols:
+                if c not in grp.columns:
+                    continue
+                vals = pd.to_numeric(grp[c], errors="coerce")
+                ok = vals.notna() & (w > 0)
+                row[c] = float((vals[ok] * w[ok]).sum() / w[ok].sum()) if ok.any() else 0.0
+            agg_rows.append(row)
+        df = pd.DataFrame(agg_rows)
 
     tournaments = []
     for _, row_data in df.iterrows():

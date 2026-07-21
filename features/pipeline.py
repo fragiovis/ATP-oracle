@@ -26,6 +26,7 @@ from features.h2h_features import H2HFeatureComputer
 from features.interaction_features import compute_interaction_features
 from features.targets import build_targets
 from features.tournament_features import TournamentFeatureComputer
+from storage.canonical import canonical_surface, canonical_tournament
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +66,9 @@ class FeaturePipeline:
         features_df       : Wide DataFrame indexed by match_id (gold layer).
         tournament_profiles : DataFrame indexed by tournament_name (t_* cols).
         """
+        logger.info("Canonicalising surfaces and tournament names…")
+        matches = self._canonicalise(matches)
+
         logger.info("Unifying player IDs (Sackmann ↔ tennis-data)…")
         matches = self._unify_player_ids(matches)
 
@@ -132,6 +136,28 @@ class FeaturePipeline:
 
         logger.info("Feature table shape: %s", features.shape)
         return features, tournament_profiles
+
+    # ------------------------------------------------------------------
+    # Canonicalisation
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _canonicalise(matches: pd.DataFrame) -> pd.DataFrame:
+        """
+        Force surfaces into {clay, hard, grass} and collapse tournament name
+        variants onto one canonical spelling.
+
+        Silver data ingested before this normalisation existed can still carry
+        "indoor_hard" — which owns no surface one-hot here (see SURFACES) and
+        would therefore lose its surface signal entirely — and duplicate event
+        names that split a tournament's history across several profiles.
+        """
+        matches = matches.copy()
+        if "surface" in matches.columns:
+            matches["surface"] = matches["surface"].map(canonical_surface)
+        if "tournament_name" in matches.columns:
+            matches["tournament_name"] = matches["tournament_name"].map(canonical_tournament)
+        return matches
 
     # ------------------------------------------------------------------
     # Surface masking

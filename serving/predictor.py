@@ -23,6 +23,7 @@ import pandas as pd
 
 from models.targets import ALL_MODELS, BaseModel
 from models.trainer import ModelTrainer
+from storage.canonical import canonical_surface, canonical_tournament
 from storage.writer import StorageWriter
 
 try:
@@ -48,6 +49,13 @@ class MatchRequest:
     round: str = "R32"
     best_of: int = 3                   # 3 = bo3 (default ATP), 5 = Grand Slam / Davis Cup
     match_date: str | None = None
+
+    def __post_init__(self):
+        # Canonicalise at the boundary so every caller (API, CLI, agent) hits
+        # the same surface vocabulary (clay/hard/grass — "indoor"/"carpet" map
+        # to "hard") and the same tournament spellings as the training data.
+        self.surface = canonical_surface(self.surface)
+        self.tournament_name = canonical_tournament(self.tournament_name)
 
 
 @dataclass

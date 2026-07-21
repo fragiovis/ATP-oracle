@@ -191,8 +191,10 @@ def run_profiles(
         players     = writer.read_silver_table("players")
         rankings    = writer.read_silver_table("rankings_snapshot_current_top200")
 
-        # Unify IDs first (same as feature pipeline)
+        # Canonicalise + unify IDs first (same as feature pipeline), so
+        # per-surface stats see "hard" rather than dropping "indoor_hard" rows.
         from features.pipeline import FeaturePipeline
+        matches = FeaturePipeline._canonicalise(matches)
         matches = FeaturePipeline._unify_player_ids(matches)
 
         # Build name → Sackmann ID mapping from unified matches
@@ -277,6 +279,10 @@ def run_tournament_history():
     matches = writer.read_silver_table("matches")
 
     from features.pipeline import FeaturePipeline
+    # Canonicalise first: the predictor looks this table up by canonical
+    # tournament name, so history keyed on raw variants ("french open") would
+    # never match a request for "roland garros".
+    matches = FeaturePipeline._canonicalise(matches)
     matches = FeaturePipeline._unify_player_ids(matches)
 
     history_df = build_player_tournament_history(matches)
