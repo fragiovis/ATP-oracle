@@ -13,10 +13,15 @@ Scrapes the official ATP Tour website, stores data on **Hadoop HDFS** running in
 git clone https://github.com/fragiovis/ATP-oracle.git
 cd ATP-oracle
 
-# 2. Create a virtual environment and install the package
+# 2. Create a virtual environment and install the dependencies
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
+pip install --upgrade pip
+pip install -r requirements.txt  # or: requirements-dev.txt to include tests/lint
+pip install -e .                 # installs the atp-* CLI entry points
+
+# 2b. Install the headless browser used by the scraper
+playwright install chromium
 
 # 3. Configure secrets — copy the template and fill in your keys
 cp .env.example .env             # then edit .env
@@ -72,7 +77,10 @@ project1_atp_oracle/
 
 - Python ≥ 3.10
 - Docker + Docker Compose
-- An `ANTHROPIC_API_KEY` environment variable (for the agent's LLM calls)
+- A `GROQ_API_KEY` in `.env` (for the agent's LLM calls; without it the parser
+  falls back to a heuristic and natural-language understanding is degraded)
+- AWS credentials in the environment, if you want to read models/features from S3
+  (otherwise the loaders silently fall back to the local `.cache/`)
 
 ---
 

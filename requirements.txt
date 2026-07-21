@@ -1,0 +1,55 @@
+# ATP Oracle — dipendenze di runtime
+#
+#   python -m venv .venv
+#   source .venv/bin/activate        # Windows: .venv\Scripts\activate
+#   pip install -r requirements.txt
+#   playwright install chromium      # richiesto dallo scraper (browser headless)
+#
+# Per lo sviluppo (test + lint):  pip install -r requirements-dev.txt
+# Versioni minime allineate a un ambiente verificato funzionante su Python 3.12.
+
+# --- Scraping ---------------------------------------------------------------
+requests>=2.32
+lxml>=5.0
+beautifulsoup4>=4.12
+fake-useragent>=2.0
+playwright>=1.45          # browser headless usato da scraper/browser.py
+
+# --- Dati -------------------------------------------------------------------
+pandas>=2.1
+numpy>=1.26
+pyarrow>=14.0
+openpyxl>=3.1             # parsing .xlsx di tennis-data.co.uk
+
+# --- Storage ----------------------------------------------------------------
+boto3>=1.34               # S3 (layer gold/silver/models)
+hdfs>=2.7                 # HDFS via WebHDFS
+
+# --- Machine learning -------------------------------------------------------
+scikit-learn>=1.4
+xgboost>=2.0
+lightgbm>=4.3
+shap>=0.44                # spiegazioni delle predizioni in serving/predictor.py
+
+# --- Valutazione / grafici --------------------------------------------------
+matplotlib>=3.8
+seaborn>=0.13
+
+# --- Agent NL ---------------------------------------------------------------
+groq>=0.9
+
+# --- Config / CLI -----------------------------------------------------------
+pydantic>=2.5
+pydantic-settings>=2.2
+typer>=0.12
+rich>=13.7
+
+# --- Logging / utils --------------------------------------------------------
+structlog>=24.1
+tenacity>=8.2
+tqdm>=4.66
+
+# --- Web server -------------------------------------------------------------
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
