@@ -1,8 +1,21 @@
-# ATP Oracle
+# ATP Oracle 🎾
 
-Production-style data and ML pipeline for **pre-match ATP tennis predictions**.
+**Pre-match prediction system for ATP men's singles** — a production-style data and ML pipeline with a natural-language interface.
 
-Scrapes the official ATP Tour website, stores data on **Hadoop HDFS** running in Docker, engineers player/matchup features, trains **separate models per prediction target**, and exposes predictions through a **natural-language primary agent**.
+*Big Data course project (A.Y. 2025/26) · Università degli Studi Roma Tre · Francesco Giovanardi, Alessandro Cavina*
+
+Ask *"Who is favored between Sinner and Alcaraz on clay?"* and the system parses the question with an LLM, builds a leakage-free feature vector from decades of match history and routes it to the right model. The answer comes back with probabilities and the key drivers behind the prediction.
+
+**Highlights**
+- **Medallion data lake** (raw → bronze → silver → gold) on **Hadoop HDFS** (Docker) or **AWS S3**, with ~700K historical matches and 60K+ players
+- **Data acquisition** from Jeff Sackmann's `tennis_atp` dataset, tennis-data.co.uk (2025+) and the official ATP Tour site (Playwright scraper with rate limiting and checkpoint/resume)
+- **Feature engineering**: overall and per-surface Elo, rolling form (last 5/10/25), head-to-head, serve-vs-return interactions, tournament context — all computed strictly before the match date
+- **6 specialised models** (LightGBM / XGBoost) trained on time-based splits, evaluated with accuracy / AUC / log-loss / Brier (classifiers) and MAE / RMSE / R² (regressors), plus calibration curves and a betting backtest
+- **Serving**: FastAPI + web UI, CLI tools and an LLM agent (Groq, Llama 3.3 70B) for intent recognition, entity extraction and clarifying questions
+- **Explainability**: SHAP feature attributions turned into a plain-language explanation of each prediction (`/api/explain`)
+- **Cloud**: EC2 bootstrap script for training on S3 data
+
+**Stack:** Python · pandas · PyArrow · LightGBM · XGBoost · scikit-learn · SHAP · Hadoop HDFS · Docker · AWS (S3, EC2) · FastAPI · Playwright · Groq API · Pydantic · Typer · pytest
 
 ---
 
@@ -48,32 +61,33 @@ uvicorn serving.api:app --host 0.0.0.0 --port 8000 --reload
 
 ## Prediction targets
 
-| Intent | Output |
-|---|---|
-| Who is favored between X and Y on surface? | `win_probability_player_a/b` |
-| Who wins the match? | `predicted_winner` |
-| How many aces will X hit against Y? | `expected_aces_player_a` |
-| How many total aces in the match? | `expected_total_aces` |
-| How many total games? | `expected_total_games` |
-| Probability of a deciding set? | `prob_deciding_set` |
-| Probability of at least one tie-break? | `prob_tiebreak` |
-| Who is favored to win the first set? | `prob_player_a_first_set` |
+| Model | Task | Output |
+|---|---|---|
+| Match winner | classification | `win_probability_player_a/b`, `predicted_winner` |
+| Tie-break | classification | `prob_tiebreak` (at least one tie-break in the match) |
+| Player aces | regression | `expected_aces_player_a` |
+| Total aces | regression | `expected_total_aces` |
+| Total games | regression | `expected_total_games` |
+| Sets played | regression | `expected_sets_played` |
+
+The winner probability is made **order-invariant**: the model is queried for both A-vs-B and B-vs-A and the two estimates are averaged.
 
 ---
 
 ## Project layout
 
 ```
-project1_atp_oracle/
+ATP-oracle/
 ├── agent/          # Primary NLP agent (parser → router → response)
-├── scraper/        # ATP Tour web scrapers (rankings, matches, stats)
-├── storage/        # HDFS client, normaliser, writer
+├── scraper/        # Data acquisition: Sackmann CSVs, tennis-data.co.uk, ATP Tour scrapers
+├── storage/        # HDFS and S3 clients, normaliser, writer
 ├── features/       # Feature engineering (Elo, rolling, H2H, interaction)
-├── models/         # One model per prediction target + trainer
+├── models/         # One model per prediction target, trainer, betting backtest
 ├── evaluation/     # Metrics, calibration plots, residual plots
 ├── serving/        # Structured inference layer (MatchPredictor)
 ├── config/         # Pydantic settings (all tuneable parameters)
-├── infra/          # docker-compose.yml for Hadoop HDFS
+├── app/            # Web UI (served by FastAPI)
+├── infra/          # docker-compose for HDFS, EC2 bootstrap, IAM setup
 └── tests/          # Unit tests
 ```
 
@@ -147,7 +161,7 @@ Writes the gold-layer `pre_match_features.parquet` to HDFS under `/data/gold/fea
 atp-train run
 ```
 
-Trains 7 separate models (LightGBM / XGBoost) using time-based train/val/test splits.
+Trains 6 separate models (LightGBM for the two classifiers, XGBoost for the four regressors) using time-based train/val/test splits.
 Saves model artifacts and metadata to HDFS under `/data/models/<run_id>/`.
 
 ### 4 – Evaluate models
@@ -239,7 +253,7 @@ Key settings:
 | `ATP_SCRAPER_YEARS_BACK` | 20 | Years of history to scrape |
 | `ATP_HDFS_NAMENODE_URL` | `http://localhost:9870` | HDFS NameNode URL |
 | `ATP_MODEL_RANDOM_SEED` | 42 | Reproducibility seed |
-| `ATP_AGENT_CLAUDE_MODEL` | `claude-sonnet-4-6` | LLM model for the agent |
+| `ATP_AGENT_GROQ_MODEL` | `llama-3.3-70b-versatile` | LLM used by the agent |
 
 ---
 
