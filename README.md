@@ -2,7 +2,7 @@
 
 **Pre-match prediction system for ATP men's singles** — a production-style data and ML pipeline with a natural-language interface.
 
-*Big Data course project (A.Y. 2025/26) · Università degli Studi Roma Tre · Francesco Giovanardi, Alessandro Cavina*
+*Big Data course project (A.Y. 2025/26) · Università degli Studi Roma Tre · Francesco Giovanardi*
 
 Ask *"Who is favored between Sinner and Alcaraz on clay?"* and the system parses the question with an LLM, builds a leakage-free feature vector from decades of match history and routes it to the right model. The answer comes back with probabilities and the key drivers behind the prediction.
 
