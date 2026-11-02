@@ -1,6 +1,6 @@
 """NLP parser: extract intent and entities from a user query.
 
-Uses the Groq API (llama-3.3-70b-versatile) for intent detection and
+Uses the Groq API (openai/gpt-oss-120b) for intent detection and
 entity extraction.  Falls back to a regex heuristic if the API call fails
 or GROQ_API_KEY is not set.
 
@@ -177,6 +177,7 @@ class QueryParser:
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": query},
             ],
+            **settings.agent.groq_extra_params(),
         )
         return response.choices[0].message.content.strip()
 

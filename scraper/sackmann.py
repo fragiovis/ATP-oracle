@@ -23,6 +23,8 @@ import logging
 from datetime import date
 from typing import Any
 
+from pathlib import Path
+
 import pandas as pd
 import requests
 
@@ -30,7 +32,7 @@ from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = "https://raw.githubusercontent.com/JeffSackmann/tennis_atp/master"
+BASE_URL = settings.scraper.sackmann_source.rstrip("/")
 
 # tourney_level → tournament_category
 LEVEL_MAP = {
@@ -330,6 +332,8 @@ class SackmannLoader:
 
     def _fetch_csv(self, url: str) -> pd.DataFrame:
         try:
+            if not url.startswith(("http://", "https://")):
+                return pd.read_csv(Path(url).expanduser(), low_memory=False)
             resp = self._session.get(url, timeout=30)
             resp.raise_for_status()
             return pd.read_csv(io.StringIO(resp.text), low_memory=False)

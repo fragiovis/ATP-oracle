@@ -1,0 +1,54 @@
+[09/24/26 16:38:48] INFO     INFO:storage.local_client:Local  local_client.py:31
+                             storage client ready:                              
+                             ~/Big_Data/project1_atp                   
+                             _oracle/.cache/storage                             
+                    INFO     INFO:features.cli:Reading silver tables  cli.py:111
+                             from S3…                                           
+                    INFO     INFO:storage.writer:Reading           writer.py:105
+                             /data/silver/matches.parquet                       
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ ./features/cli.py:311 in run_all       │
+│                                                                              │
+│   308 │   top_n: int = typer.Option(200, "--top-n"),                         │
+│   309 ):                                                                     │
+│   310 │   """Build feature table, player profiles, and tournament history."" │
+│ ❱ 311 │   run_features(from_local=False)                                     │
+│   312 │   run_profiles(from_local=False, top_n=top_n)                        │
+│   313 │   run_tournament_history()                                           │
+│   314                                                                        │
+│                                                                              │
+│ ./features/cli.py:112 in run_features  │
+│                                                                              │
+│   109 │   │   logger.info("Loaded %d rows from local backup.", len(features_ │
+│   110 │   else:                                                              │
+│   111 │   │   logger.info("Reading silver tables from S3…")                  │
+│ ❱ 112 │   │   matches     = writer.read_silver_table("matches")              │
+│   113 │   │   match_stats = writer.read_silver_table("match_player_stats")   │
+│   114 │   │   players     = writer.read_silver_table("players")              │
+│   115 │   │   h2h         = writer.read_silver_table("head_to_head_history") │
+│                                                                              │
+│ ./storage/writer.py:106 in             │
+│ read_silver_table                                                            │
+│                                                                              │
+│   103 │   │   """Read a silver Parquet table from S3 into a pandas DataFrame │
+│   104 │   │   s3_path = f"{self.cfg.silver_path}/{table_name}.parquet"       │
+│   105 │   │   logger.info("Reading %s", s3_path)                             │
+│ ❱ 106 │   │   return self.client.read_parquet(s3_path)                       │
+│   107 │                                                                      │
+│   108 │   def write_gold_features(self, df, filename: str = "pre_match_featu │
+│   109 │   │   s3_path = f"{self.cfg.gold_features_path}/{filename}"          │
+│                                                                              │
+│ ./storage/local_client.py:112 in       │
+│ read_parquet                                                                 │
+│                                                                              │
+│   109 │   def read_parquet(self, path: str) -> pd.DataFrame:                 │
+│   110 │   │   p = self._path(path)                                           │
+│   111 │   │   if not p.exists():                                             │
+│ ❱ 112 │   │   │   raise FileNotFoundError(f"{p} not found")                  │
+│   113 │   │   return pq.read_table(p).to_pandas()                            │
+│   114 │                                                                      │
+│   115 │   def read_parquet_dir(self, directory: str) -> pd.DataFrame:        │
+╰──────────────────────────────────────────────────────────────────────────────╯
+FileNotFoundError: 
+./.cache/storage/data/silver/matches.parqu
+et not found

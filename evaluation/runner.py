@@ -18,7 +18,7 @@ from evaluation.plots import (
 )
 from models.targets import ALL_MODELS
 from models.trainer import ModelTrainer
-from storage.hdfs_client import HDFSClient
+from storage.factory import get_storage_client
 from storage.writer import StorageWriter
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class EvaluationRunner:
     def __init__(self):
         self.trainer = ModelTrainer()
         self.evaluator = ModelEvaluator()
-        self.client = HDFSClient()
+        self.client = get_storage_client()
         self.eval_path = settings.hdfs.evaluation_path
 
     # ------------------------------------------------------------------

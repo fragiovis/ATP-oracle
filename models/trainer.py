@@ -10,7 +10,7 @@ import pandas as pd
 
 from config.settings import settings
 from models.targets import build_all_models
-from storage.s3_client import S3Client
+from storage.factory import get_storage_client
 from features.pipeline import FeaturePipeline
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ LOCAL_MODEL_CACHE = Path(".cache/models")
 
 class ModelTrainer:
     def __init__(self):
-        self.client = S3Client()
+        self.client = get_storage_client()
         self.models_path = settings.s3.models_path
 
     # ------------------------------------------------------------------

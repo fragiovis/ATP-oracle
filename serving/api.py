@@ -498,6 +498,7 @@ async def explain(request: ExplainRequest):
             ],
             temperature=0.2,
             max_tokens=400,
+            **settings.agent.groq_extra_params(),
         )
         text = response.choices[0].message.content.strip()
         return {"explanation": text}

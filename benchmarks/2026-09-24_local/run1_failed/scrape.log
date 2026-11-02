@@ -1,0 +1,858 @@
+[09/24/26 16:32:01] INFO     INFO:scraper.pipeline:=== Step 1:    pipeline.py:50
+                             Scraping current ATP Top-200                       
+                             rankings ===                                       
+                    INFO     INFO:scraper.rankings:Scraping ATP   rankings.py:42
+                             rankings (top 200):                                
+                             https://www.atptour.com/en/rankings/               
+                             singles?rankRange=1-200                            
+[09/24/26 16:32:02] INFO     INFO:scraper.rankings:Found 200      rankings.py:51
+                             players in rankings.                               
+                    INFO     INFO:scraper.pipeline:Current        pipeline.py:55
+                             top-200 rankings fetched.                          
+                    INFO     INFO:scraper.pipeline:=== Step 2:    pipeline.py:62
+                             Scraping player bios for current                   
+                             Top-200 ===                                        
+                    INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/r.-             
+                             safiullin/sx50/overview                            
+[09/24/26 16:32:04] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/r.              
+                             -safiullin/sx50/player-stats                       
+[09/24/26 16:32:09] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/g.-             
+                             heide/h0du/overview                                
+[09/24/26 16:32:16] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/g.              
+                             -heide/h0du/player-stats                           
+[09/24/26 16:32:22] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/s.-             
+                             sakellaridis/s0kt/overview                         
+[09/24/26 16:32:30] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/s.              
+                             -sakellaridis/s0kt/player-stats                    
+[09/24/26 16:32:36] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/t.-             
+                             seyboth-wild/sx91/overview                         
+[09/24/26 16:32:43] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/t.              
+                             -seyboth-wild/sx91/player-stats                    
+[09/24/26 16:32:51] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/m.-             
+                             mmoh/mp01/overview                                 
+[09/24/26 16:32:57] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/m.              
+                             -mmoh/mp01/player-stats                            
+[09/24/26 16:33:03] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/i.-             
+                             simakin/s0o6/overview                              
+[09/24/26 16:33:09] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/i.              
+                             -simakin/s0o6/player-stats                         
+[09/24/26 16:33:15] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/n.-             
+                             sanchez-izquierdo/s0gz/overview                    
+[09/24/26 16:33:21] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/n.              
+                             -sanchez-izquierdo/s0gz/player-stats               
+[09/24/26 16:33:28] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/s.-             
+                             kwon/kf17/overview                                 
+[09/24/26 16:33:34] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/s.              
+                             -kwon/kf17/player-stats                            
+[09/24/26 16:33:41] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/t.-             
+                             gentzsch/g0ib/overview                             
+[09/24/26 16:33:46] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/t.              
+                             -gentzsch/g0ib/player-stats                        
+[09/24/26 16:33:52] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/m.-             
+                             alcala-gurri/a0ea/overview                         
+[09/24/26 16:34:01] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/m.              
+                             -alcala-gurri/a0ea/player-stats                    
+[09/24/26 16:34:06] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/d.-             
+                             blanch/b0no/overview                               
+[09/24/26 16:34:12] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/d.              
+                             -blanch/b0no/player-stats                          
+[09/24/26 16:34:19] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/z.-             
+                             zhang/z371/overview                                
+[09/24/26 16:34:26] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/z.              
+                             -zhang/z371/player-stats                           
+[09/24/26 16:34:33] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/a.-             
+                             guerrieri/g0a0/overview                            
+[09/24/26 16:34:39] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/a.              
+                             -guerrieri/g0a0/player-stats                       
+[09/24/26 16:34:45] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/f.-             
+                             cina/c0nb/overview                                 
+[09/24/26 16:34:52] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/f.              
+                             -cina/c0nb/player-stats                            
+[09/24/26 16:34:58] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/g.-             
+                             onclin/o0a2/overview                               
+[09/24/26 16:35:05] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/g.              
+                             -onclin/o0a2/player-stats                          
+[09/24/26 16:35:11] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/m.-             
+                             dodig/d0l3/overview                                
+[09/24/26 16:35:18] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/m.              
+                             -dodig/d0l3/player-stats                           
+[09/24/26 16:35:24] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/h.-             
+                             wendelken/w0ah/overview                            
+[09/24/26 16:35:30] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/h.              
+                             -wendelken/w0ah/player-stats                       
+[09/24/26 16:35:37] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/a.-             
+                             galarneau/gk06/overview                            
+[09/24/26 16:35:44] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/a.              
+                             -galarneau/gk06/player-stats                       
+[09/24/26 16:35:51] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/v.-             
+                             sachko/ss25/overview                               
+[09/24/26 16:35:56] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/v.              
+                             -sachko/ss25/player-stats                          
+[09/24/26 16:36:02] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/l.-             
+                             djere/db63/overview                                
+[09/24/26 16:36:09] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/l.              
+                             -djere/db63/player-stats                           
+[09/24/26 16:36:14] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/a.-             
+                             ilagan/i0b0/overview                               
+[09/24/26 16:36:22] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/a.              
+                             -ilagan/i0b0/player-stats                          
+[09/24/26 16:36:28] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/d.-             
+                             dedura/d0lj/overview                               
+[09/24/26 16:36:35] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/d.              
+                             -dedura/d0lj/player-stats                          
+[09/24/26 16:36:42] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/j.-             
+                             kumstat/k0jh/overview                              
+[09/24/26 16:36:48] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/j.              
+                             -kumstat/k0jh/player-stats                         
+[09/24/26 16:36:54] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/p.-             
+                             kotov/k09f/overview                                
+[09/24/26 16:37:00] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/p.              
+                             -kotov/k09f/player-stats                           
+[09/24/26 16:37:06] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/m.-             
+                             kouame/k0o4/overview                               
+[09/24/26 16:37:13] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/m.              
+                             -kouame/k0o4/player-stats                          
+[09/24/26 16:37:19] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/t.-             
+                             daniel/da81/overview                               
+[09/24/26 16:37:26] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/t.              
+                             -daniel/da81/player-stats                          
+[09/24/26 16:37:33] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/k.-             
+                             smith/s0dq/overview                                
+[09/24/26 16:37:39] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/k.              
+                             -smith/s0dq/player-stats                           
+[09/24/26 16:37:47] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/f.-             
+                             balshaw/b0wl/overview                              
+[09/24/26 16:37:53] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/f.              
+                             -balshaw/b0wl/player-stats                         
+[09/24/26 16:37:59] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/j.-             
+                             varillas/v836/overview                             
+[09/24/26 16:38:05] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/j.              
+                             -varillas/v836/player-stats                        
+[09/24/26 16:38:12] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/l.-             
+                             midon/m0oh/overview                                
+[09/24/26 16:38:17] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/l.              
+                             -midon/m0oh/player-stats                           
+[09/24/26 16:38:25] INFO     INFO:scraper.player:Scraping bio:      player.py:53
+                             https://www.atptour.com/en/players/e.-             
+                             butvilas/b0mm/overview                             
+[09/24/26 16:38:31] INFO     INFO:scraper.player:Scraping career   player.py:100
+                             stats:                                             
+                             https://www.atptour.com/en/players/e.              
+                             -butvilas/b0mm/player-stats                        
+[09/24/26 16:38:37] INFO     INFO:scraper.pipeline:=== Step 3:    pipeline.py:76
+                             Loading ALL historical matches from                
+                             Sackmann ===                                       
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:103
+                             players list:                                      
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_p                
+                             layers.csv                                         
+[09/24/26 16:38:38] WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_p                
+                             layers.csv: 404 Client Error: Not                  
+                             Found for url:                                     
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_p                
+                             layers.csv                                         
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:126
+                             current rankings:                                  
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_r                
+                             ankings_current.csv                                
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_r                
+                             ankings_current.csv: 404 Client                    
+                             Error: Not Found for url:                          
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_r                
+                             ankings_current.csv                                
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1986 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1986.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1986.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1986                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1987 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1987.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1987.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1987                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1988 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1988.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1988.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1988                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1989 …                                     
+[09/24/26 16:38:39] WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1989.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1989.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1989                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1990 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1990.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1990.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1990                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1991 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1991.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1991.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1991                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1992 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1992.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1992.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1992                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1993 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1993.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1993.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1993                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1994 …                                     
+[09/24/26 16:38:40] WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1994.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1994.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1994                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1995 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1995.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1995.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1995                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1996 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1996.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1996.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1996                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1997 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1997.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1997.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1997                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1998 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1998.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1998.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1998                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 1999 …                                     
+[09/24/26 16:38:41] WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1999.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_1999.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 1999                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2000 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2000.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2000.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2000                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2001 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2001.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2001.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2001                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2002 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2002.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2002.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2002                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2003 …                                     
+[09/24/26 16:38:42] WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2003.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2003.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2003                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2004 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2004.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2004.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2004                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2005 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2005.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2005.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2005                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2006 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2006.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2006.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2006                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2007 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2007.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2007.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2007                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2008 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2008.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2008.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2008                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2009 …                                     
+[09/24/26 16:38:43] WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2009.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2009.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2009                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2010 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2010.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2010.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2010                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2011 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2011.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2011.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2011                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2012 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2012.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2012.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2012                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2013 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2013.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2013.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2013                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2014 …                                     
+[09/24/26 16:38:44] WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2014.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2014.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2014                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2015 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2015.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2015.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2015                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2016 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2016.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2016.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2016                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2017 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2017.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2017.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2017                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2018 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2018.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2018.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2018                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2019 …                                     
+[09/24/26 16:38:45] WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2019.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2019.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2019                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2020 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2020.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2020.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2020                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2021 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2021.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2021.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2021                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2022 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2022.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2022.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2022                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2023 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2023.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2023.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2023                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2024 …                                     
+[09/24/26 16:38:46] WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2024.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2024.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2024                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2025 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2025.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2025.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2025                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:182
+                             matches 2026 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:337
+                             fetch                                              
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2026.csv: 404 Client Error:                 
+                             Not Found for url:                                 
+                             https://raw.githubusercontent.com/J                
+                             effSackmann/tennis_atp/master/atp_m                
+                             atches_2026.csv                                    
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:185
+                             for year 2026                                      
+                    INFO     INFO:scraper.pipeline:Sackmann       pipeline.py:81
+                             matches: 0  stats: 0                               
+                    INFO     INFO:scraper.pipeline:=== Step 4:    pipeline.py:84
+                             Loading 2025/2026 data from                        
+                             tennis-data.co.uk ===                              
+                    INFO     INFO:scraper.tennisdata:Downloadin tennisdata.py:92
+                             g tennis-data 2025:                                
+                             http://www.tennis-data.co.uk/2025/                 
+                             2025.xlsx                                          
+                    WARNING  WARNING:scraper.tennisdata:Could   tennisdata.py:98
+                             not load tennis-data 2025: 404                     
+                             Client Error: Not Found for url:                   
+                             https://www.tennis-data.co.uk/2025                 
+                             /2025.xlsx                                         
+                    INFO     INFO:scraper.tennisdata:tennis-dat tennisdata.py:84
+                             a 2025: 0 matches loaded                           
+                    INFO     INFO:scraper.tennisdata:Downloadin tennisdata.py:92
+                             g tennis-data 2026:                                
+                             http://www.tennis-data.co.uk/2026/                 
+                             2026.xlsx                                          
+[09/24/26 16:38:47] WARNING  WARNING:scraper.tennisdata:Could   tennisdata.py:98
+                             not load tennis-data 2026: 404                     
+                             Client Error: Not Found for url:                   
+                             https://www.tennis-data.co.uk/2026                 
+                             /2026.xlsx                                         
+                    INFO     INFO:scraper.tennisdata:tennis-dat tennisdata.py:84
+                             a 2026: 0 matches loaded                           
+                    INFO     INFO:scraper.pipeline:Recent matches pipeline.py:87
+                             (2025/2026): 0                                     
+                    INFO     INFO:scraper.pipeline:Total matches  pipeline.py:89
+                             combined: 0                                        
+                    INFO     INFO:scraper.pipeline:Sackmann       pipeline.py:95
+                             player roster: 0 players                           
+                    INFO     INFO:scraper.cli:Writing data to S3 (raw  cli.py:54
+                             JSON + silver Parquet)…                            
+                    INFO     INFO:storage.local_client:Local  local_client.py:31
+                             storage client ready:                              
+                             ~/Big_Data/project1_atp                   
+                             _oracle/.cache/storage                             
+                    INFO     INFO:storage.writer:Writing raw        writer.py:57
+                             rankings (200 records) →                           
+                             /data/raw/rankings/2026-09-24.json                 
+                    INFO     INFO:storage.writer:No records for     writer.py:54
+                             players – skipping.                                
+                    INFO     INFO:storage.writer:No records for     writer.py:54
+                             matches – skipping.                                
+                    INFO     INFO:storage.writer:No records for     writer.py:54
+                             match_stats – skipping.                            
+                    WARNING  WARNING:storage.writer:Empty table:    writer.py:66
+                             players – skipping.                                
+                    INFO     INFO:storage.writer:Writing silver     writer.py:69
+                             table rankings_snapshot_current_top200             
+                             (200 rows) →                                       
+                             /data/silver/rankings_snapshot_current             
+                             _top200.parquet                                    
+                    WARNING  WARNING:storage.writer:Empty table:    writer.py:66
+                             matches – skipping.                                
+                    WARNING  WARNING:storage.writer:Empty table:    writer.py:66
+                             match_player_stats – skipping.                     
+                    WARNING  WARNING:storage.writer:Empty table:    writer.py:66
+                             head_to_head_history – skipping.                   
+                    INFO     INFO:scraper.cli:S3 write complete.       cli.py:57
+Done – rankings=200, players=0, matches=0, match_stats=0

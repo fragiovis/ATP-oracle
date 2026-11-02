@@ -1,0 +1,199 @@
+[09/24/26 16:42:17] INFO     INFO:scraper.pipeline:=== Step 1:    pipeline.py:50
+                             Scraping current ATP Top-200                       
+                             rankings ===                                       
+                    INFO     INFO:scraper.rankings:Scraping ATP   rankings.py:42
+                             rankings (top 200):                                
+                             https://www.atptour.com/en/rankings/               
+                             singles?rankRange=1-200                            
+                    INFO     INFO:scraper.rankings:Found 200      rankings.py:51
+                             players in rankings.                               
+                    INFO     INFO:scraper.pipeline:Current        pipeline.py:55
+                             top-200 rankings fetched.                          
+                    INFO     INFO:scraper.pipeline:=== Step 2:    pipeline.py:62
+                             Scraping player bios for current                   
+                             Top-200 ===                                        
+                    INFO     INFO:scraper.pipeline:=== Step 3:    pipeline.py:76
+                             Loading ALL historical matches from                
+                             Sackmann ===                                       
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:105
+                             players list:                                      
+                             ~/tennis_predictor/data/ra                
+                             w/sackmann/tennis_atp/atp_players.c                
+                             sv                                                 
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:128
+                             current rankings:                                  
+                             ~/tennis_predictor/data/ra                
+                             w/sackmann/tennis_atp/atp_rankings_                
+                             current.csv                                        
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1986 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1987 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1988 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1989 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1990 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1991 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1992 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1993 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1994 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1995 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1996 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1997 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1998 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 1999 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2000 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2001 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2002 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2003 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2004 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2005 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2006 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2007 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2008 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2009 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2010 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2011 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2012 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2013 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2014 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2015 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2016 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2017 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2018 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2019 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2020 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2021 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2022 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2023 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2024 …                                     
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2025 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:341
+                             fetch                                              
+                             ~/tennis_predictor/data/ra                
+                             w/sackmann/tennis_atp/atp_matches_2                
+                             025.csv: [Errno 2] No such file or                 
+                             directory:                                         
+                             '~/tennis_predictor/data/r                
+                             aw/sackmann/tennis_atp/atp_matches_                
+                             2025.csv'                                          
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:187
+                             for year 2025                                      
+                    INFO     INFO:scraper.sackmann:Downloading   sackmann.py:184
+                             matches 2026 …                                     
+                    WARNING  WARNING:scraper.sackmann:Could not  sackmann.py:341
+                             fetch                                              
+                             ~/tennis_predictor/data/ra                
+                             w/sackmann/tennis_atp/atp_matches_2                
+                             026.csv: [Errno 2] No such file or                 
+                             directory:                                         
+                             '~/tennis_predictor/data/r                
+                             aw/sackmann/tennis_atp/atp_matches_                
+                             2026.csv'                                          
+                    WARNING  WARNING:scraper.sackmann:No data    sackmann.py:187
+                             for year 2026                                      
+                    INFO     INFO:scraper.sackmann:Total matches sackmann.py:179
+                             loaded: 126167                                     
+[09/24/26 16:42:27] INFO     INFO:scraper.pipeline:Sackmann       pipeline.py:81
+                             matches: 126167  stats: 196102                     
+                    INFO     INFO:scraper.pipeline:=== Step 4:    pipeline.py:84
+                             Loading 2025/2026 data from                        
+                             tennis-data.co.uk ===                              
+[09/24/26 16:42:28] INFO     INFO:scraper.tennisdata:Downloadi tennisdata.py:112
+                             ng tennis-data 2025:                               
+                             https://www.tennis-data.co.uk/hrj                  
+                             k-85HytOjkhth76j_ygh4jf7/2025/202                  
+                             5.xlsx                                             
+[09/24/26 16:42:29] INFO     INFO:scraper.tennisdata:tennis-dat tennisdata.py:88
+                             a 2025: 2644 matches loaded                        
+                    INFO     INFO:scraper.tennisdata:Downloadi tennisdata.py:112
+                             ng tennis-data 2026:                               
+                             https://www.tennis-data.co.uk/hrj                  
+                             k-85HytOjkhth76j_ygh4jf7/2026/202                  
+                             6.xlsx                                             
+                    INFO     INFO:scraper.tennisdata:tennis-dat tennisdata.py:88
+                             a 2026: 2150 matches loaded                        
+                    INFO     INFO:scraper.pipeline:Recent matches pipeline.py:87
+                             (2025/2026): 4794                                  
+                    INFO     INFO:scraper.pipeline:Total matches  pipeline.py:89
+                             combined: 130961                                   
+                    INFO     INFO:scraper.pipeline:Sackmann       pipeline.py:95
+                             player roster: 65989 players                       
+                    INFO     INFO:scraper.cli:Writing data to S3 (raw  cli.py:54
+                             JSON + silver Parquet)…                            
+                    INFO     INFO:storage.local_client:Local  local_client.py:31
+                             storage client ready:                              
+                             ~/Big_Data/project1_atp                   
+                             _oracle/.cache/storage                             
+                    INFO     INFO:storage.writer:Writing raw        writer.py:57
+                             rankings (200 records) →                           
+                             /data/raw/rankings/2026-09-24.json                 
+                    INFO     INFO:storage.writer:Writing raw        writer.py:57
+                             players (65989 records) →                          
+                             /data/raw/players/2026-09-24.json                  
+[09/24/26 16:42:30] INFO     INFO:storage.writer:Writing raw        writer.py:57
+                             matches (130961 records) →                         
+                             /data/raw/matches/2026-09-24.json                  
+                    INFO     INFO:storage.writer:Writing raw        writer.py:57
+                             match_stats (196102 records) →                     
+                             /data/raw/match_stats/2026-09-24.json              
+[09/24/26 16:42:36] INFO     INFO:storage.writer:Writing silver     writer.py:69
+                             table players (65989 rows) →                       
+                             /data/silver/players.parquet                       
+                    INFO     INFO:storage.writer:Writing silver     writer.py:69
+                             table rankings_snapshot_current_top200             
+                             (200 rows) →                                       
+                             /data/silver/rankings_snapshot_current             
+                             _top200.parquet                                    
+                    INFO     INFO:storage.writer:Writing silver     writer.py:69
+                             table matches (130961 rows) →                      
+                             /data/silver/matches.parquet                       
+                    INFO     INFO:storage.writer:Writing silver     writer.py:69
+                             table match_player_stats (196102 rows)             
+                             →                                                  
+                             /data/silver/match_player_stats.parque             
+                             t                                                  
+[09/24/26 16:42:37] INFO     INFO:storage.writer:Writing silver     writer.py:69
+                             table head_to_head_history (130961                 
+                             rows) →                                            
+                             /data/silver/head_to_head_history.parq             
+                             uet                                                
+                    INFO     INFO:scraper.cli:S3 write complete.       cli.py:57
+Done – rankings=200, players=65989, matches=130961, match_stats=196102

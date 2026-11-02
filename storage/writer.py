@@ -13,7 +13,7 @@ from typing import Any
 import pandas as pd
 
 from config.settings import settings
-from storage.s3_client import S3Client
+from storage.factory import get_storage_client
 from storage.normaliser import DataNormaliser
 
 LOCAL_FEATURES_CACHE = Path(".cache/pre_match_features.parquet")
@@ -29,7 +29,7 @@ class StorageWriter:
     """Persist raw + normalised ATP data to S3."""
 
     def __init__(self):
-        self.client = S3Client()
+        self.client = get_storage_client()
         self.normaliser = DataNormaliser()
         self.cfg = settings.s3
 
@@ -89,15 +89,11 @@ class StorageWriter:
         import json
         s3_path = f"{self.cfg.raw_matches_path}/all_matches.jsonl"
         try:
-            key = self.client._key(s3_path)
-            resp = self.client._s3.get_object(Bucket=self.client._bucket, Key=key)
-            text = resp["Body"].read().decode("utf-8")
+            text = self.client.read_bytes(s3_path).decode("utf-8")
             return [json.loads(line) for line in text.strip().split("\n") if line.strip()]
-        except Exception as e:
-            if "NoSuchKey" in str(e) or "404" in str(e):
-                logger.info("No existing raw matches file found on S3.")
-                return []
-            raise
+        except FileNotFoundError:
+            logger.info("No existing raw matches file found in storage.")
+            return []
 
     # ------------------------------------------------------------------
     # Read helpers (used by feature pipeline)

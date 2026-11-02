@@ -1,0 +1,98 @@
+[09/24/26 18:38:54] INFO     INFO:storage.local_client:Local  local_client.py:31
+                             storage client ready:                              
+                             ~/Big_Data/project1_atp                   
+                             _oracle/.cache/storage                             
+                    INFO     INFO:models.eval_cli:Loading gold    eval_cli.py:26
+                             features…                                          
+[09/24/26 18:38:55] INFO     INFO:models.eval_cli:Evaluating      eval_cli.py:29
+                             models…                                            
+                    INFO     INFO:storage.local_client:Local  local_client.py:31
+                             storage client ready:                              
+                             ~/Big_Data/project1_atp                   
+                             _oracle/.cache/storage                             
+                    INFO     INFO:models.trainer:Loaded winner    trainer.py:128
+                             from S3 run 20260924_163836                        
+                    INFO     INFO:models.base:Split: train=95679     base.py:104
+                             val=17314 test=17968                               
+                             (target=winner_label)                              
+                    INFO     INFO:models.evaluator:winner       evaluator.py:101
+                             {'n_test': 17968, 'accuracy':                      
+                             0.6431, 'roc_auc': 0.7034,                         
+                             'log_loss': 0.628,                                 
+                             'baseline_accuracy':                               
+                             np.float64(0.5026),                                
+                             'lift_vs_baseline':                                
+                             np.float64(0.1405)}                                
+                    INFO     INFO:models.trainer:Loaded tiebreak  trainer.py:128
+                             from S3 run 20260924_163836                        
+                    INFO     INFO:models.base:Split: train=95679     base.py:104
+                             val=17314 test=17968                               
+                             (target=tiebreak_present_label)                    
+                    INFO     INFO:models.evaluator:tiebreak     evaluator.py:101
+                             {'n_test': 17968, 'accuracy':                      
+                             0.6151, 'roc_auc': 0.5839,                         
+                             'log_loss': 0.6687,                                
+                             'baseline_accuracy':                               
+                             np.float64(0.6059),                                
+                             'lift_vs_baseline':                                
+                             np.float64(0.0092)}                                
+                    INFO     INFO:models.trainer:Loaded           trainer.py:128
+                             player_aces from S3 run                            
+                             20260924_163836                                    
+                    INFO     INFO:models.base:Split: train=34681     base.py:104
+                             val=6948 test=7610                                 
+                             (target=player_aces_target)                        
+                    INFO     INFO:models.evaluator:player_aces  evaluator.py:101
+                             {'n_test': 7610, 'mae': 3.212,                     
+                             'rmse': 4.287, 'r2': 0.4165,                       
+                             'mean_target': 7.166}                              
+                    INFO     INFO:models.trainer:Loaded           trainer.py:128
+                             total_aces from S3 run                             
+                             20260924_163836                                    
+                    INFO     INFO:models.base:Split: train=68971     base.py:104
+                             val=13842 test=15238                               
+                             (target=total_aces_target)                         
+                    INFO     INFO:models.evaluator:total_aces   evaluator.py:101
+                             {'n_test': 15238, 'mae': 4.963,                    
+                             'rmse': 6.648, 'r2': 0.3949,                       
+                             'mean_target': 12.509}                             
+                    INFO     INFO:models.trainer:Loaded           trainer.py:128
+                             total_games from S3 run                            
+                             20260924_163836                                    
+                    INFO     INFO:models.base:Split: train=95679     base.py:104
+                             val=17314 test=17968                               
+                             (target=total_games_target)                        
+[09/24/26 18:38:56] INFO     INFO:models.evaluator:total_games  evaluator.py:101
+                             {'n_test': 17968, 'mae': 5.835,                    
+                             'rmse': 7.368, 'r2': 0.3161,                       
+                             'mean_target': 25.561}                             
+                    INFO     INFO:models.trainer:Loaded           trainer.py:128
+                             sets_played from S3 run                            
+                             20260924_163836                                    
+                    INFO     INFO:models.base:Split: train=94664     base.py:104
+                             val=17094 test=17759                               
+                             (target=sets_played_target)                        
+                    INFO     INFO:models.evaluator:sets_played  evaluator.py:101
+                             {'n_test': 17759, 'mae': 0.506,                    
+                             'rmse': 0.569, 'r2': 0.464,                        
+                             'mean_target': 2.628}                              
+                      Classification models (test split)                       
+┏━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┓
+┃ Model    ┃ N test ┃ Accuracy ┃ Baseline acc. ┃    Lift ┃ ROC-AUC ┃ Log-loss ┃
+┡━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━┩
+│ winner   │  17968 │   0.6431 │        0.5026 │ +0.1405 │  0.7034 │    0.628 │
+├──────────┼────────┼──────────┼───────────────┼─────────┼─────────┼──────────┤
+│ tiebreak │  17968 │   0.6151 │        0.6059 │ +0.0092 │  0.5839 │   0.6687 │
+└──────────┴────────┴──────────┴───────────────┴─────────┴─────────┴──────────┘
+                Regression models (test split)                 
+┏━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Model       ┃ N test ┃   MAE ┃  RMSE ┃     R² ┃ Mean target ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━┩
+│ player_aces │   7610 │ 3.212 │ 4.287 │ 0.4165 │       7.166 │
+├─────────────┼────────┼───────┼───────┼────────┼─────────────┤
+│ total_aces  │  15238 │ 4.963 │ 6.648 │ 0.3949 │      12.509 │
+├─────────────┼────────┼───────┼───────┼────────┼─────────────┤
+│ total_games │  17968 │ 5.835 │ 7.368 │ 0.3161 │      25.561 │
+├─────────────┼────────┼───────┼───────┼────────┼─────────────┤
+│ sets_played │  17759 │ 0.506 │ 0.569 │  0.464 │       2.628 │
+└─────────────┴────────┴───────┴───────┴────────┴─────────────┘

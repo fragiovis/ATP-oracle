@@ -21,3 +21,6 @@ build/
 
 # Office temp lock files
 ~$*
+
+# Superseded presentation (kept locally)
+ATP_Oracle_Presentation.pptx

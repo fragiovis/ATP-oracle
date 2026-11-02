@@ -18,7 +18,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # ---------------------------------------------------------------------------
 
 class ScraperSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="ATP_SCRAPER_")
+    model_config = SettingsConfigDict(
+        env_prefix="ATP_SCRAPER_",
+        env_file=Path(__file__).resolve().parent.parent / ".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     # Rate limiting
     requests_per_minute: int = Field(default=10, description="Max requests per minute")
@@ -40,6 +45,12 @@ class ScraperSettings(BaseSettings):
     checkpoint_dir: Path = Field(default=Path(".cache/checkpoints"))
 
     # (No proxies configured)
+
+    # Sackmann tennis_atp dataset: base URL or local directory with the CSVs
+    sackmann_source: str = Field(
+        default="https://raw.githubusercontent.com/JeffSackmann/tennis_atp/master",
+        description="Base URL or local directory of the Sackmann tennis_atp CSVs",
+    )
 
     # Scrape horizon
     years_back: int = Field(default=40, description="How many years of match history to scrape")
@@ -79,13 +90,36 @@ class HDFSSettings(BaseSettings):
 
 
 # ---------------------------------------------------------------------------
+# Storage backend selection
+# ---------------------------------------------------------------------------
+
+class StorageSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="ATP_STORAGE_",
+        env_file=Path(__file__).resolve().parent.parent / ".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    # "s3" → AWS bucket (settings.s3), "local" → filesystem under local_root
+    backend: Literal["s3", "local"] = Field(default="s3")
+    local_root: Path = Field(default=Path(".cache/storage"))
+
+
+# ---------------------------------------------------------------------------
 # S3 Storage
 # ---------------------------------------------------------------------------
 
 class S3Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="ATP_S3_")
+    model_config = SettingsConfigDict(
+        env_prefix="ATP_S3_",
+        env_file=Path(__file__).resolve().parent.parent / ".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
-    bucket: str = Field(default="tennis-predictor-959366206165-us-east-1-an")
+    # Required with ATP_STORAGE_BACKEND=s3: set ATP_S3_BUCKET in the environment or .env
+    bucket: str = Field(default="")
     region: str = Field(default="us-east-1")
     # Optional key prefix inside the bucket (leave empty to use bucket root)
     prefix: str = Field(default="atp-oracle")
@@ -201,7 +235,15 @@ class AgentSettings(BaseSettings):
     )
 
     # Groq model for NL understanding
-    groq_model: str = Field(default="llama-3.3-70b-versatile")
+    groq_model: str = Field(default="openai/gpt-oss-120b")
+    # Reasoning effort for reasoning models (gpt-oss); reasoning tokens count
+    # against max_tokens, so keep it low. Ignored for non-reasoning models.
+    groq_reasoning_effort: str = Field(default="low")
+
+    def groq_extra_params(self) -> dict:
+        if "gpt-oss" in self.groq_model:
+            return {"reasoning_effort": self.groq_reasoning_effort}
+        return {}
     # API key: reads ATP_AGENT_GROQ_API_KEY or GROQ_API_KEY (no prefix) from env/.env
     groq_api_key: str = Field(
         default="",
@@ -225,6 +267,7 @@ class Settings(BaseSettings):
     scraper: ScraperSettings = Field(default_factory=ScraperSettings)
     hdfs: HDFSSettings = Field(default_factory=HDFSSettings)
     s3: S3Settings = Field(default_factory=S3Settings)
+    storage: StorageSettings = Field(default_factory=StorageSettings)
     features: FeatureSettings = Field(default_factory=FeatureSettings)
     model: ModelSettings = Field(default_factory=ModelSettings)
     agent: AgentSettings = Field(default_factory=AgentSettings)

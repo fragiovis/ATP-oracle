@@ -1,0 +1,120 @@
+[09/24/26 16:42:37] INFO     INFO:storage.local_client:Local  local_client.py:31
+                             storage client ready:                              
+                             ~/Big_Data/project1_atp                   
+                             _oracle/.cache/storage                             
+                    INFO     INFO:features.cli:Reading silver tables  cli.py:111
+                             from S3…                                           
+                    INFO     INFO:storage.writer:Reading           writer.py:105
+                             /data/silver/matches.parquet                       
+                    INFO     INFO:storage.writer:Reading           writer.py:105
+                             /data/silver/match_player_stats.parqu              
+                             et                                                 
+                    INFO     INFO:storage.writer:Reading           writer.py:105
+                             /data/silver/players.parquet                       
+                    INFO     INFO:storage.writer:Reading           writer.py:105
+                             /data/silver/head_to_head_history.par              
+                             quet                                               
+                    INFO     INFO:features.pipeline:Canonicalisin pipeline.py:69
+                             g surfaces and tournament names…                   
+[09/24/26 16:42:38] INFO     INFO:features.pipeline:Unifying      pipeline.py:72
+                             player IDs (Sackmann ↔ tennis-data)…               
+[09/24/26 16:42:40] INFO     INFO:features.pipeline:ID           pipeline.py:287
+                             unification: 13268 td_* values                     
+                             replaced across                                    
+                             player_a_id/player_b_id/winner_id                  
+                             (name map: 3722 unique surnames).                  
+                    INFO     INFO:features.pipeline:Computing Elo pipeline.py:75
+                             ratings…                                           
+[09/24/26 16:42:43] INFO     INFO:features.pipeline:Computing     pipeline.py:87
+                             player rolling features…                           
+                    INFO     INFO:features.player_features player_features.py:74
+                             :Building per-player history                       
+                             index…                                             
+[09/24/26 16:42:46] INFO     INFO:features.player_features player_features.py:77
+                             :Computing features for                            
+                             130961 matches…                                    
+[09/24/26 17:31:53] INFO     INFO:features.pipeline:Computing H2H pipeline.py:90
+                             features…                                          
+[09/24/26 17:42:17] INFO     INFO:features.pipeline:Computing     pipeline.py:93
+                             match context features…                            
+                    INFO     INFO:features.pipeline:Joining       pipeline.py:96
+                             feature blocks…                                    
+[09/24/26 17:42:18] INFO     INFO:features.pipeline:Computing    pipeline.py:104
+                             interaction features…                              
+                    INFO     INFO:features.pipeline:Building     pipeline.py:108
+                             target labels…                                     
+[09/24/26 17:45:35] INFO     INFO:features.pipeline:Computing    pipeline.py:116
+                             tournament features…                               
+[09/24/26 17:49:57] INFO     INFO:features.tournament tournament_features.py:108
+                             _features:Tournament                               
+                             profiles: 223                                      
+                             tournaments, 130961                                
+                             per-match rows                                     
+                    INFO     INFO:features.pipeline:Applying     pipeline.py:127
+                             per-row surface masking…                           
+                    INFO     INFO:features.pipeline:Randomising  pipeline.py:134
+                             player roles (50%% swap) to balance                
+                             winner_label…                                      
+                    INFO     INFO:features.pipeline:Feature      pipeline.py:137
+                             table shape: (130961, 143)                         
+[09/24/26 17:49:58] INFO     INFO:features.cli:Local backup saved to  cli.py:124
+                             .cache/pre_match_features.parquet                  
+                             (130961 rows)                                      
+                    INFO     INFO:storage.writer:Writing           writer.py:154
+                             tournament profiles (223 tournaments)              
+                             →                                                  
+                             /data/tournaments/tournament_profiles              
+                             .parquet                                           
+                    INFO     INFO:features.cli:Tournament profiles    cli.py:130
+                             written (223 tournaments)                          
+                    INFO     INFO:storage.writer:Writing gold      writer.py:110
+                             features (130961 rows) →                           
+                             /data/gold/features/pre_match_feature              
+                             s.parquet                                          
+Done – 130961 feature rows written to S3.
+                    INFO     INFO:storage.local_client:Local  local_client.py:31
+                             storage client ready:                              
+                             ~/Big_Data/project1_atp                   
+                             _oracle/.cache/storage                             
+                    INFO     INFO:features.cli:Extracting player      cli.py:176
+                             profiles from gold feature table…                  
+[09/24/26 17:50:00] INFO     INFO:features.player_profile player_profiler.py:261
+                             r:Dropping 1 columns with                          
+                             >30% NaN:                                          
+                             ['pa_bo5_career_aces_per_mat                       
+                             ch']                                               
+                    INFO     INFO:features.player_profile player_profiler.py:267
+                             r:Extracted 200 player                             
+                             profiles from gold table (32                       
+                             features)                                          
+                    INFO     INFO:features.cli:Local backup saved to  cli.py:185
+                             .cache/player_profiles.parquet (200                
+                             players)                                           
+                    INFO     INFO:storage.writer:Writing player    writer.py:132
+                             profiles (200 players) →                           
+                             /data/players/player_profiles.parquet              
+Done – 200 player profiles written to S3.
+                    INFO     INFO:storage.local_client:Local  local_client.py:31
+                             storage client ready:                              
+                             ~/Big_Data/project1_atp                   
+                             _oracle/.cache/storage                             
+                    INFO     INFO:features.cli:Reading silver matches cli.py:278
+                             from S3…                                           
+                    INFO     INFO:storage.writer:Reading           writer.py:105
+                             /data/silver/matches.parquet                       
+[09/24/26 17:50:02] INFO     INFO:features.pipeline:ID           pipeline.py:287
+                             unification: 13268 td_* values                     
+                             replaced across                                    
+                             player_a_id/player_b_id/winner_id                  
+                             (name map: 3722 unique surnames).                  
+[09/24/26 17:50:03] INFO     INFO:features.player_profile player_profiler.py:317
+                             r:Player tournament history:                       
+                             62635 (player, tournament)                         
+                             pairs across 4242 players.                         
+                    INFO     INFO:features.cli:Local backup saved to  cli.py:295
+                             .cache/player_tournament_history.parquet           
+                    INFO     INFO:storage.writer:Writing player    writer.py:176
+                             tournament history (62635 rows) →                  
+                             /data/players/player_tournament_histo              
+                             ry.parquet                                         
+Done – 62635 player×tournament rows written to S3.

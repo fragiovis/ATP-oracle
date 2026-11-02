@@ -157,12 +157,21 @@ class BaseScraper:
     # ------------------------------------------------------------------
 
     def _make_headers(self) -> dict[str, str]:
+        # Include a Referer and a few common browser request headers to reduce
+        # the chance of being blocked by basic bot-protection on sites like
+        # atptour.com. This remains a lightweight fallback; for robust
+        # scraping use the Playwright-based scraper.
         return {
             "User-Agent": _ua.random,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.5",
             "Accept-Encoding": "gzip, deflate",
             "Connection": "keep-alive",
+            "Referer": "https://www.atptour.com/",
+            "Upgrade-Insecure-Requests": "1",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Dest": "document",
         }
 
     def _fetch_raw(self, url: str) -> str:

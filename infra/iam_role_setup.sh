@@ -5,7 +5,7 @@
 set -euo pipefail
 
 ROLE_NAME="atp-oracle-s3-role"
-BUCKET="tennis-predictor-959366206165-us-east-1-an"
+BUCKET="${ATP_S3_BUCKET:?Set ATP_S3_BUCKET to your S3 bucket name}"
 
 echo "Creating IAM role: $ROLE_NAME"
 

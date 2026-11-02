@@ -1,6 +1,8 @@
 """Loader for tennis-data.co.uk Excel files (2025 / 2026 and beyond).
 
 URL pattern: http://www.tennis-data.co.uk/{year}/{year}.xlsx
+(the site now serves files under an obfuscated prefix, so the actual link is
+looked up on the alldata.php index page first)
 
 Columns present:
   ATP, Location, Tournament, Date, Series, Court, Surface, Round, Best of,
@@ -17,6 +19,7 @@ from __future__ import annotations
 import hashlib
 import io
 import logging
+import re
 from datetime import date
 from typing import Any
 
@@ -28,6 +31,7 @@ from config.settings import settings
 logger = logging.getLogger(__name__)
 
 BASE_URL = "http://www.tennis-data.co.uk/{year}/{year}.xlsx"
+INDEX_URL = "https://www.tennis-data.co.uk/alldata.php"
 
 SERIES_MAP = {
     "grand slam":   "Grand Slam",
@@ -87,8 +91,24 @@ class TennisDataLoader:
 
     # ------------------------------------------------------------------
 
+    def _resolve_url(self, year: int) -> str:
+        """Find the men's {year}.xlsx link on the index page (fallback: legacy pattern)."""
+        if not hasattr(self, "_index_html"):
+            try:
+                resp = self._session.get(INDEX_URL, timeout=30)
+                resp.raise_for_status()
+                self._index_html = resp.text
+            except Exception as exc:
+                logger.warning("Could not load tennis-data index page: %s", exc)
+                self._index_html = ""
+        # "{year}w/" folders are the WTA files — match only "/{year}/{year}.xlsx"
+        m = re.search(rf'href="([^"]*?/{year}/{year}\.xlsx)"', self._index_html, re.IGNORECASE)
+        if m:
+            return f"https://www.tennis-data.co.uk/{m.group(1).lstrip('/')}"
+        return BASE_URL.format(year=year)
+
     def _load_year(self, year: int) -> list[dict]:
-        url = BASE_URL.format(year=year)
+        url = self._resolve_url(year)
         logger.info("Downloading tennis-data %d: %s", year, url)
         try:
             resp = self._session.get(url, timeout=30)

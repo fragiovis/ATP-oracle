@@ -28,6 +28,7 @@ pip install boto3 shap -q
 
 # ── AWS region (bucket is us-east-1) ──────────────────────────────────
 export AWS_DEFAULT_REGION=us-east-1
+export ATP_S3_BUCKET="${ATP_S3_BUCKET:?Set ATP_S3_BUCKET to your S3 bucket name}"
 
 # ── Run pipeline ───────────────────────────────────────────────────────
 echo ""
