@@ -7,7 +7,7 @@
 Ask *"Who is favored between Sinner and Alcaraz on clay?"* and the system parses the question with an LLM, builds a leakage-free feature vector from decades of match history and routes it to the right model. The answer comes back with probabilities and the key drivers behind the prediction.
 
 **Highlights**
-- **Medallion data lake** (raw → bronze → silver → gold) on **Hadoop HDFS** (Docker) or **AWS S3**, with ~700K historical matches and 60K+ players
+- **Medallion data lake** (raw → bronze → silver → gold) on **Hadoop HDFS** (Docker) or **AWS S3**, with 130,961 matches (1986–2026) and 65,989 players
 - **Data acquisition** from Jeff Sackmann's `tennis_atp` dataset, tennis-data.co.uk (2025+) and the official ATP Tour site (Playwright scraper with rate limiting and checkpoint/resume)
 - **Feature engineering**: overall and per-surface Elo, rolling form (last 5/10/25), head-to-head, serve-vs-return interactions, tournament context — all computed strictly before the match date
 - **6 specialised models** (LightGBM / XGBoost) trained on time-based splits, evaluated with accuracy / AUC / log-loss / Brier (classifiers) and MAE / RMSE / R² (regressors), plus calibration curves and a betting backtest
