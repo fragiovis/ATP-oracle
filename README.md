@@ -7,11 +7,11 @@
 Ask *"Who is favored between Sinner and Alcaraz on clay?"* and the system parses the question with an LLM, builds a leakage-free feature vector from decades of match history and routes it to the right model. The answer comes back with probabilities and the key drivers behind the prediction.
 
 **Highlights**
-- **Medallion data lake** (raw → bronze → silver → gold) on **Hadoop HDFS** (Docker) or **AWS S3**, with 130,961 matches (1986–2026) and 65,989 players
+- **Medallion data lake** (raw → silver → gold) on a swappable storage backend, **AWS S3** or the **local filesystem** (the project started on Hadoop HDFS): 130,961 matches (1986–2026), 65,989 players, 144 feature columns
 - **Data acquisition** from Jeff Sackmann's `tennis_atp` dataset, tennis-data.co.uk (2025+) and the official ATP Tour site (Playwright scraper with rate limiting and checkpoint/resume)
 - **Feature engineering**: overall and per-surface Elo, rolling form (last 5/10/25), head-to-head, serve-vs-return interactions, tournament context — all computed strictly before the match date
 - **6 specialised models** (LightGBM / XGBoost) trained on time-based splits, evaluated with accuracy / AUC / log-loss / Brier (classifiers) and MAE / RMSE / R² (regressors), plus calibration curves and a betting backtest
-- **Serving**: FastAPI + web UI, CLI tools and an LLM agent (Groq, Llama 3.3 70B) for intent recognition, entity extraction and clarifying questions
+- **Serving**: FastAPI + web UI, CLI tools and an LLM agent (Groq, gpt-oss-120b) for intent recognition, entity extraction and clarifying questions
 - **Explainability**: SHAP feature attributions turned into a plain-language explanation of each prediction (`/api/explain`)
 - **Cloud**: EC2 bootstrap script for training on S3 data
 
@@ -42,20 +42,17 @@ playwright install chromium
 # 2d. Check it worked — should print a path inside .venv/bin
 which atp-serve
 
-# 3. Configure secrets — copy the template and fill in your keys
-cp .env.example .env             # then edit .env
+# 3. Configure — copy the template, then set GROQ_API_KEY and the storage backend
+cp .env.example .env             # ATP_STORAGE_BACKEND=local needs no cloud account
 
-# 4. Start Hadoop HDFS (Docker must be running)
-docker compose -f infra/docker-compose.yml up -d
-
-# 5. Launch the web UI and open http://localhost:8000
+# 4. Launch the web UI and open http://localhost:8000
 uvicorn serving.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 > **Note:** the trained models and cached datasets are **not** committed to the
 > repo (they live on S3 / are regenerated). To produce them locally, run the
-> pipeline below in order: `atp-scrape run` → `atp-features run` →
-> `atp-train run`. See [Pipeline walkthrough](#pipeline-walkthrough).
+> pipeline below in order: `atp-scrape run` → `atp-features all` →
+> `atp-train`. See [Pipeline walkthrough](#pipeline-walkthrough).
 
 ---
 
@@ -74,13 +71,32 @@ The winner probability is made **order-invariant**: the model is queried for bot
 
 ---
 
+## Results
+
+Time-based split: train 1986–2013 (95,679 matches), validation 2014–2019 (17,314), test 2020–2026 (17,968). The ace models stop at 2024 because tennis-data has no serve statistics.
+
+| Model | Test matches | Result on the test set |
+|---|---|---|
+| Winner | 17,968 | accuracy 64.3% (baseline 50.3%), ROC-AUC 0.70 |
+| Tie-break | 17,968 | accuracy 61.5% (baseline 60.6%), ROC-AUC 0.58 |
+| Player aces | 7,610 | MAE 3.2, R² 0.42 |
+| Total aces | 15,238 | MAE 5.0, R² 0.39 |
+| Total games | 17,968 | MAE 5.8, R² 0.32 |
+| Sets played | 17,759 | MAE 0.51, R² 0.46 |
+
+The winner model is 14 points above the baseline but only 0.5 points above the simple "higher Elo wins" rule, and the tie-break model has almost no signal: new features (fatigue, travel, odds) are the clear next step.
+
+The full data pipeline takes about 1h 08m locally, almost all of it CPU time in the rolling features. Training the six models takes 19 s. Details are in [`benchmarks/`](benchmarks/) and in the [presentation](ATP_Oracle_Presentazione_2026.pptx) (Italian).
+
+---
+
 ## Project layout
 
 ```
 ATP-oracle/
 ├── agent/          # Primary NLP agent (parser → router → response)
 ├── scraper/        # Data acquisition: Sackmann CSVs, tennis-data.co.uk, ATP Tour scrapers
-├── storage/        # HDFS and S3 clients, normaliser, writer
+├── storage/        # S3 and local backends (plus the original HDFS client), normaliser, writer
 ├── features/       # Feature engineering (Elo, rolling, H2H, interaction)
 ├── models/         # One model per prediction target, trainer, betting backtest
 ├── evaluation/     # Metrics, calibration plots, residual plots
@@ -88,6 +104,8 @@ ATP-oracle/
 ├── config/         # Pydantic settings (all tuneable parameters)
 ├── app/            # Web UI (served by FastAPI)
 ├── infra/          # docker-compose for HDFS, EC2 bootstrap, IAM setup
+├── benchmarks/     # Pipeline timings and logs
+├── scripts/        # Local storage seeding
 └── tests/          # Unit tests
 ```
 
@@ -96,10 +114,10 @@ ATP-oracle/
 ## Requirements
 
 - Python ≥ 3.10
-- Docker + Docker Compose
+- A local copy of the Sackmann `tennis_atp` CSVs, set in `ATP_SCRAPER_SACKMANN_SOURCE` (the upstream GitHub repository is no longer available)
 - A `GROQ_API_KEY` in `.env` (for the agent's LLM calls; without it the parser
   falls back to a heuristic and natural-language understanding is degraded)
-- AWS credentials in the environment, if you want to read models/features from S3
+- With `ATP_STORAGE_BACKEND=s3`: AWS credentials in the environment and `ATP_S3_BUCKET`
   (otherwise the loaders silently fall back to the local `.cache/`)
 
 ---
@@ -110,11 +128,10 @@ ATP-oracle/
 # 1. Clone and install
 pip install -e ".[dev]"
 
-# 2. Start Hadoop HDFS
-docker compose -f infra/docker-compose.yml up -d
-
-# Wait ~30 seconds for the NameNode to start, then verify:
-curl http://localhost:9870   # HDFS Web UI
+# 2. Configure .env
+ATP_STORAGE_BACKEND=local                      # or s3, together with ATP_S3_BUCKET
+ATP_SCRAPER_SACKMANN_SOURCE=/path/to/tennis_atp
+GROQ_API_KEY=...
 ```
 
 ---
@@ -127,9 +144,9 @@ curl http://localhost:9870   # HDFS Web UI
 atp-scrape run
 ```
 
-Scrapes the current ATP Top-200 rankings, player profiles, match history
-(~20 years), and per-match stats.  Raw data is saved as JSON on HDFS under
-`/data/raw/`.  Supports checkpoint/resume – safe to re-run.
+Collects the current Top-200 rankings and player bios from atptour.com, match
+history and serve statistics from Sackmann, and 2025+ results from
+tennis-data.co.uk.  Raw data is saved as JSON Lines under `/data/raw/`.  Supports checkpoint/resume – safe to re-run.
 
 Tune scraping behaviour via environment variables:
 
@@ -137,32 +154,32 @@ Tune scraping behaviour via environment variables:
 ATP_SCRAPER_REQUESTS_PER_MINUTE=10
 ATP_SCRAPER_MIN_DELAY_SECONDS=3.0
 ATP_SCRAPER_MAX_DELAY_SECONDS=8.0
-ATP_SCRAPER_YEARS_BACK=20
+ATP_SCRAPER_YEARS_BACK=40
 ```
 
 ### 2 – Build features
 
 ```bash
-atp-features run
+atp-features all
 ```
 
-Reads silver HDFS tables, computes:
+Reads the silver tables and computes:
 - Elo ratings (overall + per surface)
 - Rolling player stats (last 5 / 10 / 25 matches, career, surface-specific)
 - Head-to-head features
 - Match context features
 - Serve-vs-return interaction features
 
-Writes the gold-layer `pre_match_features.parquet` to HDFS under `/data/gold/features/`.
+Writes the gold-layer `pre_match_features.parquet` under `/data/gold/features/`, plus player and tournament profiles.
 
 ### 3 – Train models
 
 ```bash
-atp-train run
+atp-train
 ```
 
 Trains 6 separate models (LightGBM for the two classifiers, XGBoost for the four regressors) using time-based train/val/test splits.
-Saves model artifacts and metadata to HDFS under `/data/models/<run_id>/`.
+Saves model artifacts and metadata under `/data/models/<run_id>/`.
 
 ### 4 – Evaluate models
 
@@ -179,7 +196,7 @@ Results under `/data/evaluation/<run_id>/`.
 ### 5 – Structured inference
 
 ```bash
-atp-predict predict \
+atp-predict \
   --player-a "Jannik Sinner" \
   --player-b "Carlos Alcaraz" \
   --surface clay \
@@ -214,10 +231,10 @@ Features of the UI:
 
 ```bash
 # One-shot
-atp-agent ask "Who is favored between Sinner and Alcaraz on clay?"
+atp-agent "Who is favored between Sinner and Alcaraz on clay?"
 
 # Interactive REPL
-atp-agent ask --interactive
+atp-agent --interactive
 ```
 
 Example interaction:
@@ -242,7 +259,7 @@ Agent: Which two players are you asking about?
 ## Configuration
 
 All parameters live in `config/settings.py` and can be overridden with
-environment variables (prefix `ATP_SCRAPER_`, `ATP_HDFS_`, `ATP_FEATURES_`,
+environment variables (prefix `ATP_SCRAPER_`, `ATP_STORAGE_`, `ATP_S3_`, `ATP_FEATURES_`,
 `ATP_MODEL_`, `ATP_AGENT_`).
 
 Key settings:
@@ -250,10 +267,13 @@ Key settings:
 | Variable | Default | Description |
 |---|---|---|
 | `ATP_SCRAPER_REQUESTS_PER_MINUTE` | 10 | Max requests/min |
-| `ATP_SCRAPER_YEARS_BACK` | 20 | Years of history to scrape |
-| `ATP_HDFS_NAMENODE_URL` | `http://localhost:9870` | HDFS NameNode URL |
+| `ATP_SCRAPER_YEARS_BACK` | 40 | Years of history to scrape |
+| `ATP_SCRAPER_SACKMANN_SOURCE` | upstream URL | URL or local folder of the Sackmann CSVs |
+| `ATP_STORAGE_BACKEND` | `s3` | `s3` or `local` |
+| `ATP_STORAGE_LOCAL_ROOT` | `.cache/storage` | Root folder of the local backend |
+| `ATP_S3_BUCKET` | none | Bucket name, required with the `s3` backend |
 | `ATP_MODEL_RANDOM_SEED` | 42 | Reproducibility seed |
-| `ATP_AGENT_GROQ_MODEL` | `llama-3.3-70b-versatile` | LLM used by the agent |
+| `ATP_AGENT_GROQ_MODEL` | `openai/gpt-oss-120b` | LLM used by the agent |
 
 ---
 
@@ -274,7 +294,7 @@ Tests cover:
 
 ---
 
-## HDFS directory layout
+## Storage layout
 
 ```
 /data/
@@ -283,7 +303,6 @@ Tests cover:
     players/
     matches/
     match_stats/
-  bronze/          ← reserved for minimally cleaned data
   silver/          ← normalised Parquet tables
     players.parquet
     matches.parquet
@@ -295,7 +314,7 @@ Tests cover:
   models/
     <run_id>/
       winner/model.pkl
-      deciding_set/model.pkl
+      tiebreak/model.pkl
       ...
   evaluation/
     <run_id>/
@@ -349,7 +368,7 @@ lsof -ti:8000 | xargs kill
 ### Predictions look stale after retraining
 
 The predictor is a lazy singleton cached in memory, so it does not hot-reload.
-**Restart `atp-serve`** after `atp-train run`.
+**Restart `atp-serve`** after `atp-train`.
 
 ### `Rankings snapshot empty or missing columns — rank features will be NaN`
 
